@@ -666,10 +666,10 @@
     "source": "nominatim"
   },
   "marriott": {
-    "lat": 41.9852988,
-    "lon": -87.8413561,
-    "display_name": "Chicago Marriott O'Hare, 8535, West Higgins Road, Chicago, Leyden Township, Cook County, Illinois, 60631, United States",
-    "source": "nominatim"
+    "lat": 41.8919952,
+    "lon": -87.6248664,
+    "display_name": "540 N Michigan Ave, Chicago, IL 60611 → Chicago Marriott Downtown Magnificent Mile, 540, North Michigan Avenue, Magnific",
+    "source": "manual+firecrawl"
   },
   "marriott marquis": {
     "lat": 41.8536541,
@@ -846,10 +846,10 @@
     "source": "nominatim"
   },
   "omni": {
-    "lat": 41.7060574,
-    "lon": -87.5524097,
-    "display_name": "Omni Materials, 10443, South Muskegon Avenue, Irondale, South Deering, Chicago, Hyde Park Township, Cook County, Illinois, 60617, United States",
-    "source": "nominatim"
+    "lat": 41.8947239,
+    "lon": -87.6249368,
+    "display_name": "676 N Michigan Ave, Chicago, IL 60611 → Omni Chicago Hotel, 676, North Michigan Avenue, Magnificent Mile, Near North Sid",
+    "source": "manual+firecrawl"
   },
   "oprah winfrey mural": {
     "lat": 41.8812868,
@@ -960,10 +960,10 @@
     "source": "nominatim"
   },
   "renaissance": {
-    "lat": 41.9831406,
-    "lon": -87.8409362,
-    "display_name": "Renaissance Chicago O'Hare Suites, 8500, West Bryn Mawr Avenue, O'Hare, Chicago, Jefferson Township, Cook County, Illinois, 60631, United States",
-    "source": "nominatim"
+    "lat": 41.8858837,
+    "lon": -87.6286906,
+    "display_name": "1 W Upper Wacker Dr, Chicago, IL 60601 → Protein Bar, 1, West Upper Wacker Drive, Theatre District, Loop, Chicago, South ",
+    "source": "manual+firecrawl"
   },
   "residence inn": {
     "lat": 41.8816746,
@@ -1092,10 +1092,10 @@
     "source": "nominatim"
   },
   "springhill suites": {
-    "lat": 41.9851242,
-    "lon": -87.8298626,
-    "display_name": "SpringHill Suites Chicago O'Hare, 8101, West Higgins Road, Norwood Park, Chicago, Jefferson Township, Cook County, Illinois, 60631, United States",
-    "source": "nominatim"
+    "lat": 41.8895221,
+    "lon": -87.6298273,
+    "display_name": "410 N Dearborn St, Chicago, IL 60654 → Residence Inn Chicago Downtown/River North, 410, North Dearborn Street, River No",
+    "source": "manual+firecrawl"
   },
   "st. clair": {
     "lat": 41.8914024,
@@ -1332,10 +1332,10 @@
     "source": "nominatim"
   },
   "water tower": {
-    "lat": 41.9862574,
-    "lon": -87.7202243,
-    "display_name": "Water Tower, 5801, North Pulaski Road, Brynford Park, North Park, Chicago, Jefferson Township, Cook County, Illinois, 60646, United States",
-    "source": "nominatim"
+    "lat": 41.8971757,
+    "lon": -87.6244367,
+    "display_name": "806 N Michigan Ave, Chicago, IL 60611 → Chicago Water Tower, 806, North Michigan Avenue, Magnificent Mile, River North, ",
+    "source": "manual+firecrawl"
   },
   "water tower place": {
     "lat": 41.8981348,
@@ -1560,10 +1560,10 @@
     "source": "firecrawl+nominatim"
   },
   "hyatt centric mag mile": {
-    "lat": 41.8202638,
-    "lon": -87.7095369,
-    "display_name": "633 N. St, Chicago, IL → North Street, Corwith, Brighton Park, Chicago, Lake Township, Cook County, Illin",
-    "source": "firecrawl+nominatim"
+    "lat": 41.8939959,
+    "lon": -87.622591,
+    "display_name": "633 N Saint Clair St, Chicago, IL 60611 → Starbucks, 633, North Saint Clair Street, Magnificent Mile, Near North Side, Chi",
+    "source": "manual+firecrawl"
   },
   "l7 by lotte": {
     "lat": 41.8864913,

@@ -125,6 +125,15 @@ KNOWN_ADDRESSES: Dict[str, str] = {
     "route 66 league": "78 E Washington St, Chicago, IL 60602",
     "route 66 in illinois": "78 E Washington St, Chicago, IL 60602",
     "chicago style by katie lukes": "900 N Michigan Ave, Chicago, IL 60611",
+    # Generic hotel names — pin to downtown Mag Mile / Loop properties (not O'Hare suburbs)
+    "hyatt centric mag mile": "633 N Saint Clair St, Chicago, IL 60611",
+    "water tower": "806 N Michigan Ave, Chicago, IL 60611",
+    "omni": "676 N Michigan Ave, Chicago, IL 60611",
+    "marriott": "540 N Michigan Ave, Chicago, IL 60611",
+    "renaissance": "1 W Upper Wacker Dr, Chicago, IL 60601",
+    "springhill suites": "410 N Dearborn St, Chicago, IL 60654",
+    # Suburban outlet mall (official list includes it; not Loop)
+    "fashion outlets of chicago": "5220 Fashion Outlets Way, Rosemont, IL 60018",
 }
 
 

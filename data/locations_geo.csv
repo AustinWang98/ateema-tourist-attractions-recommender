@@ -144,7 +144,7 @@ bb6b095b-cdc7-49d3-a283-cd53caaedc4e,Hotel InterContinental,41.8913478,-87.62355
 1000e24d-559b-45b2-bb6f-e078555a8a6f,Howl at the Moon,41.8902485,-87.6291445,nominatim
 7f27b473-2df0-4bfa-a7f5-f41117322754,Huntington Bank Pavilion,41.8633504,-87.6084927,nominatim
 cad45d01-caf0-4813-8421-f966ff4c8763,Hyatt Centric,41.8937576,-87.6223591,nominatim
-2e849575-3863-4e41-a89e-002bbbc81430,Hyatt Centric Mag Mile,41.8202638,-87.7095369,firecrawl+nominatim
+2e849575-3863-4e41-a89e-002bbbc81430,Hyatt Centric Mag Mile,41.8939959,-87.622591,manual+firecrawl
 54f43a24-6df1-4701-9306-aeac712aebf4,Hyatt House Chicago / West Loop-Fulton Market,41.8832666,-87.6552347,nominatim
 92ccb9c1-3fd2-4b19-9157-659af3f1c129,Hyatt Place,41.8001503,-87.5886098,nominatim
 4a0a0b11-5a2a-46c7-b709-be07c03f6fb2,Hyatt Place Chicago - Medical / University District,41.8738446,-87.6727075,nominatim
@@ -176,7 +176,7 @@ fbac8988-3403-49f1-a8c0-bb30bbf46c8a,Lou Malnati's,41.9607177,-87.6835958,nomina
 b86cafa4-79b2-4c30-8215-918bee24f61e,Macy's State St.,41.8838623,-87.6270594,nominatim
 b27be0cb-8774-401b-9aaa-2d5c1fda212d,Maggie Daley Park,41.8827266,-87.6187299,nominatim
 5e3ec46b-496d-4536-b068-465aa2f01853,Mario's Italian Lemonade,41.8695748,-87.6537263,nominatim
-fc388afa-ccbe-434a-a0a8-a19f2bd80d40,Marriott,41.9852988,-87.8413561,nominatim
+fc388afa-ccbe-434a-a0a8-a19f2bd80d40,Marriott,41.8919952,-87.6248664,manual+firecrawl
 f3aeb2ff-0404-4bb7-a9a8-037146b9726b,Marriott Marquis,41.8536541,-87.6202477,nominatim
 4794a41b-886c-41e5-b298-63d0db8c936c,McCormick Place,41.851689,-87.6164754,nominatim
 64b4a648-f762-4fa8-9967-3e9b9627f5b3,McDonald's,41.8928566,-87.6315646,nominatim
@@ -211,7 +211,7 @@ c145a4a6-0a9c-4bce-9c0e-6e221e0563b8,Oak St. Beach,41.9029752,-87.622878,nominat
 a0d0c5ec-074e-4fb4-b112-9caee21d717a,Oak Street District,41.9005112,-87.626725,firecrawl+nominatim
 dd1e195c-83d6-4fe8-b09d-3c0eacc59059,Ohio House,41.8927247,-87.633172,nominatim
 d14fb43f-6832-4512-918e-9b1d33446f7c,Ohio St. Beach,41.8934893,-87.6125998,nominatim
-9c408364-019f-4639-bc18-46f728259492,Omni,41.7060574,-87.5524097,nominatim
+9c408364-019f-4639-bc18-46f728259492,Omni,41.8947239,-87.6249368,manual+firecrawl
 efb07b22-0160-4528-81b6-9a474fce0e54,Oprah Winfrey Mural,41.8812868,-87.6486727,nominatim
 14733c5f-0069-4f0e-81c8-83f14cf74be6,Origin of Great Chicago Fire of 1871,41.8694736,-87.6419112,known_address+nominatim
 538a2300-ab23-4f1e-bac8-591867e2eafa,Osteria del Pastaio,41.8978294,-87.6252295,firecrawl+nominatim
@@ -243,7 +243,7 @@ d2fb84ed-cfee-4f97-a122-ae1cad1ae003,Raising Cane’s Chicken Fingers - South Lo
 07123afa-3536-4411-9cfb-2a764a0cb700,Raising Cane’s Chicken Fingers - Wrigleyville,41.9491491,-87.6583667,known_address+nominatim
 ac00804f-ed14-4e2e-9154-0eb97831b648,Raising Cane’s Chicken Fingers - Wrigleyville,41.9491491,-87.6583667,known_address+nominatim
 a80991f7-6c46-4acf-b640-6d2417e81457,Recess,41.8892308,-87.6495781,nominatim
-41293769-1c78-4c45-b118-1e7c5a114446,Renaissance,41.9831406,-87.8409362,nominatim
+41293769-1c78-4c45-b118-1e7c5a114446,Renaissance,41.8858837,-87.6286906,manual+firecrawl
 0113d8b9-f205-416e-aff3-d685385b3056,Residence Inn,41.8816746,-87.6321072,nominatim
 83383f69-4211-4868-9b20-d6a6e89f86ed,Residence Inn,41.8816746,-87.6321072,nominatim
 983de8e2-e0c4-481b-a2e4-dcee9576464b,Richard H. Driehaus Museum,41.8942846,-87.6265031,nominatim
@@ -278,7 +278,7 @@ a831daee-9505-4d4b-84fb-4a55ad091ac1,Soldier Field Tour,41.8783735,-87.630203,fi
 6cd79913-3dea-403b-a76b-2424d394b2cb,Sonesta ES,41.8998458,-87.6213927,nominatim
 4f6cb2a9-fbce-48b3-bd54-828ece89ffc4,Sports Illustrated Resorts,41.8861041,-87.6260294,firecrawl+nominatim
 6b55795c-669e-435e-8971-37fde427393a,Sports Illustrated Resorts,41.8861041,-87.6260294,firecrawl+nominatim
-602e19a8-8126-4447-b125-4ea6bf2f2c19,SpringHill Suites,41.9851242,-87.8298626,nominatim
+602e19a8-8126-4447-b125-4ea6bf2f2c19,SpringHill Suites,41.8895221,-87.6298273,manual+firecrawl
 b3e0f981-4a6c-4249-881e-f7c0df856fdb,St. Clair,41.8914024,-87.6226683,nominatim
 09edc7a5-adc5-4b62-8aef-bf419d6ed60d,St. Regis,41.8872334,-87.6172586,nominatim
 ee1cd8e1-c553-4a4e-8d67-2dc599f3c4d2,Starbucks Reserve Roastery,41.8939214,-87.6246408,firecrawl+nominatim
@@ -332,7 +332,7 @@ aa34c73a-30c5-4912-a591-89108c676cf3,Voco,41.8881823,-87.6375946,firecrawl+nomin
 9887104e-c3d1-48b3-adfa-cabd5303713d,WNDR Museum,41.880525,-87.6559982,nominatim
 cdcd0f08-0f9b-49d4-9fed-e825b3541754,Waldorf Astoria,41.8997426,-87.6274764,nominatim
 4b3e4257-6f66-4fb6-b13f-a32620b36a7b,Warwick Allerton,41.8952056,-87.6237615,nominatim
-cb75a533-fc20-4a0e-ba44-c7cb493b9b5c,Water Tower,41.9862574,-87.7202243,nominatim
+cb75a533-fc20-4a0e-ba44-c7cb493b9b5c,Water Tower,41.8971757,-87.6244367,manual+firecrawl
 02672df6-c98c-445f-9fa6-32bfc1f6887e,Water Tower Place,41.8981348,-87.6229321,nominatim
 f10a7db2-d660-4033-b4f5-7f8e66917c81,Weather Mark Tavern,41.8619185,-87.6235586,nominatim
 ed29288d-9494-4625-a6d8-95abc92e5888,Westin,41.8994421,-87.6232342,nominatim
