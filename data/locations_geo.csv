@@ -1,0 +1,351 @@
+location_id,location_name,lat,lon,geo_source
+de2fb87e-f914-4639-8d38-1b8792583d21,10pin Bowling Lounge,41.8885278,-87.628498,nominatim
+2f7682d4-6dfc-457e-9576-bf0b48776dc4,21c Museum Hotel,41.8781,-87.6298,fallback
+0eedc28c-5cfe-4e41-812e-6ffbb1199b59,360 Chicago Observation Deck,41.8781,-87.6298,fallback
+e3f77f69-0255-466c-92d4-75dd9be82330,900 N. Michigan Shops,41.8781,-87.6298,fallback
+100cd1d6-0af9-497a-a070-063645f6304a,AC,41.8935625,-87.626098,nominatim
+435895c4-409d-4dd4-ab79-bf1181e7ec9d,Acme,41.8922463,-87.6274987,nominatim
+e711b59b-37cf-4841-b6d5-bd55c15c62c1,Adler Planetarium,41.8663656,-87.6066259,nominatim
+586ae800-1ded-4428-9079-087fcc39aba0,Al's #1 Italian Beef - River North,41.8781,-87.6298,fallback
+b80ec83e-e032-4d97-be24-bad2c7c4f757,Allegro Royal Sonesta,41.8841092,-87.6336242,nominatim
+087d51b9-f781-4806-aab3-8075785fa6a8,Aloft,41.8931202,-87.6211313,nominatim
+cff332f9-a23b-4e7a-8770-0c3f1baac092,Aloft,41.8931202,-87.6211313,nominatim
+82e5dffe-e6da-4af9-8f19-a706a05c4ed7,Ambassador,41.9059879,-87.628314,nominatim
+0d626e8e-3aeb-458e-b11a-c034e1599423,American Writers Museum,41.8855608,-87.6249909,nominatim
+688d2d72-32ae-4cea-adb9-6e02cd0fd2e8,Apple Store,41.8894215,-87.6235164,nominatim
+3940b0f9-eb88-4682-9d1b-0335dd3bde13,Arlo,41.8851138,-87.6249762,nominatim
+fa1c3882-f5b6-4eb5-82dd-241817ee014d,Art Institute of Chicago,41.879605,-87.6230716,nominatim
+4838d755-387e-4cc1-80f3-438ee12c5de0,Athena Greek Restaurant,41.8787225,-87.6476234,nominatim
+f021d1b7-2530-4f66-a737-b696f1b80d0a,Auditorium Theatre,41.8760769,-87.6252708,nominatim
+58ee6c88-2f41-489a-9c6d-360c9315519d,Audrey,41.8960119,-87.6227944,nominatim
+e3dd7225-82a0-4930-919c-e9a20d3df3db,Bally's Casino,41.8929616,-87.6269776,nominatim
+69823c0c-c554-444b-b769-1b8eb2fcbc6c,Best Western,41.8921316,-87.6319855,nominatim
+6a0b7867-8566-44cd-a074-e66d82e34e87,Best Western Grant Park,41.8781,-87.6298,fallback
+d5148032-0c5f-467b-b29e-a5202d3af219,Big Bus Tours Stop 10: 360 Chicago,41.8781,-87.6298,fallback
+f9d8de83-a6ab-46c0-ada9-69975c670ef9,Big Bus Tours Stop 11: River North,41.8781,-87.6298,fallback
+502a1d5c-6f47-4307-a5b8-49fd24841a75,Big Bus Tours Stop 1: Chicago Riverwalk,41.8781,-87.6298,fallback
+0ed825ef-99cd-4b15-8e93-5a0b9b6c65ed,Big Bus Tours Stop 2: Skydeck Chicago & Willis Tower,41.8781,-87.6298,fallback
+73cd3c5e-f16f-432a-9e52-9f323843a227,Big Bus Tours Stop 3: Millennium Park & The Art Institute of Chicago,41.8781,-87.6298,fallback
+122a12f9-cf54-4983-9787-64633fc79b15,Big Bus Tours Stop 4: Hilton Chicago & Grant Park,41.8781,-87.6298,fallback
+b704aaa2-37b1-4615-8a6c-e5478ff2948b,Big Bus Tours Stop 5: Adler Planetarium,41.8781,-87.6298,fallback
+3b8694ae-ef47-42dc-844d-f21f321a33af,Big Bus Tours Stop 6: Museum Campus,41.8781,-87.6298,fallback
+383474ac-5960-410c-8c16-3d9efc04790d,Big Bus Tours Stop 7: Sheraton Grand Chicago,41.8781,-87.6298,fallback
+0ca4aa52-726e-4bcd-bd91-754da82c23ba,Big Bus Tours Stop 8: Navy Pier,41.8781,-87.6298,fallback
+d0c80aac-6895-4f2d-b1f1-ce4d653cd253,Big Bus Tours Stop 9: Water Tower & The Magnificent Mile,41.8781,-87.6298,fallback
+5bb06c4f-bee0-45b7-8b35-c24ceb07bdb2,Billy Goat Tavern (near United Center),41.8781,-87.6298,fallback
+30e333b3-7b46-42b4-b4d9-55ba70272f1f,Black Barrel Tavern,41.8815318,-87.6543719,nominatim
+6b45568d-789c-4c66-b9ce-43ee7a6c1d31,Blackstone,41.8733563,-87.6247907,nominatim
+d52b221c-280b-4f32-afcd-7939cec5f4fb,Block 37,41.8838784,-87.6285659,nominatim
+a3cfdda6-ce51-4d35-83f3-ac6dd89485a9,Bloomingdale's,41.8996714,-87.6255916,nominatim
+136d7600-b2e2-4034-ab2f-474a2031106b,Bottom Lounge,41.8851506,-87.6618035,nominatim
+ff40b238-44f5-4584-97b5-7ed9b05f840a,Broadway Playhouse,41.8982462,-87.6223534,nominatim
+a7a8852d-df90-4edc-aada-644177987a76,Buckingham Fountain,41.875802,-87.6189718,nominatim
+3b97f91d-0aae-4060-a574-04bcb09f5357,CIBC Theatre,41.8811752,-87.6285961,nominatim
+79a27190-9265-4396-bcca-83b8244de8aa,Cadillac Palace Theatre,41.884074,-87.6331821,nominatim
+55333bd3-7b75-46b6-bbb8-183eebac0b89,Cambria,41.8846511,-87.6288604,nominatim
+075cbd0b-5080-46e7-b4c0-4628b3f50c6e,Canopy,41.8784445,-87.6350632,nominatim
+2ce8b4ca-5ee3-46bf-8cc7-f36ab8931d22,Chicago Architecture Center,41.8880131,-87.6236228,nominatim
+f4feaf51-719e-47cc-8560-0fb353cf1c57,Chicago Athletic Association,41.8818857,-87.6252187,nominatim
+6024e9cc-a4c0-4c80-9945-21a570cabfbc,Chicago Brewhouse,41.8872817,-87.6271005,nominatim
+1525a1f9-6615-4c5f-9b45-fc871577444a,Chicago Children's Museum,41.891472,-87.6092029,nominatim
+d0e57bae-9562-4bb8-86c4-256ac993ef13,Chicago Cultural Center,41.8838628,-87.6248023,nominatim
+cc926fb8-553c-47bc-82e2-16b8e013a2ae,Chicago Fire Department - Engine Co. 18,41.8781,-87.6298,fallback
+4321da98-3d3a-43d9-8fba-c877ed562a22,Chicago Fireboat Tours,41.8781,-87.6298,fallback
+b10ac59a-3998-4304-bf3b-59926ff0937e,Chicago French Market,41.884019,-87.6408565,nominatim
+d0dd29f4-691d-430e-bc60-3e3038313a29,Chicago History Museum,41.9119903,-87.631514,nominatim
+9535776b-f785-4ea4-8376-0f7597db114e,Chicago Shakespeare Theater,41.8913061,-87.605814,nominatim
+d5d24b26-e2cd-41ff-b4e8-eaf891f8b1de,Chicago Style by Katie Lukes,41.8781,-87.6298,fallback
+9146e451-276b-4918-b301-7ae41e933810,Chicago Symphony Orchestra,41.8781,-87.6298,fallback
+030e01ed-f343-4468-bc45-1722220ed333,Chicago Theatre,41.8854968,-87.6271883,nominatim
+6cf9b47c-e237-456a-876d-8ba9028bf56e,Chicago's North Shore,41.8781,-87.6298,fallback
+aeadae4f-b1b3-4289-9df6-c69aaea8c819,Chicago's North Shore,41.8781,-87.6298,fallback
+09eff1bb-4cc1-4973-83b8-ff08e0c6e9d0,Citizen M,41.8781,-87.6298,fallback
+c929ef13-839c-4dc4-ba92-371bb68911ec,City Cruises Chicago,41.8781,-87.6298,fallback
+27079374-4b20-4dbc-8c9b-b49fd64eb928,City Cruises Chicago,41.8781,-87.6298,fallback
+a4cc19e2-521b-4707-91f5-a68ddd9236cd,City Cruises Chicago,41.8781,-87.6298,fallback
+afe574c9-23ae-47e7-a407-442c93a17403,City Cruises Chicago,41.8781,-87.6298,fallback
+fe6337f9-9caf-4a5b-b9ce-7dfe628b670d,Claridge House,41.9052241,-87.6304462,nominatim
+3fd80f7d-ab09-4088-9796-9571a14a7926,Clark Street in Lincoln Park,41.8781,-87.6298,fallback
+86ecc39d-1a4f-4bf4-83a5-78f595a8b8b9,Clark Street in Lincoln Park,41.8781,-87.6298,fallback
+e6a80f79-2925-4aee-8227-97e097ca91b6,Club Quarters,41.8876218,-87.625448,nominatim
+27509459-167a-4013-97c9-32c9330b6b39,Club Quarters,41.8876218,-87.625448,nominatim
+d7f34584-aefb-4499-be0d-9169cb77c642,Cobra Lounge,41.8863874,-87.6667991,nominatim
+6a4649f5-b11a-43e0-af7a-b9cc69837daf,Color Factory,41.8783753,-87.6358062,nominatim
+08bb71a2-85d5-40c4-be63-8836184d0b66,Cone Gourmet Ice Cream,41.8814852,-87.6539786,nominatim
+d8392d2f-d8b3-4415-bd9d-93e6b4283b00,Congress Plaza,41.8749586,-87.6248317,nominatim
+d3d8f269-525c-4846-9cd1-cc87ecc10184,Corcoran's Grill & Pub,41.9116012,-87.634437,nominatim
+e3221d57-924a-4709-b0e6-4e5f13c5cc37,Corcoran's Grill & Pub,41.9116012,-87.634437,nominatim
+8e8e448e-fe9d-43ff-8550-f301f9b79dad,Courtyard by Marriott,41.8931221,-87.6231005,nominatim
+398f0ab3-55e0-45e0-8309-0a25178ed5d7,Courtyard by Marriott,41.8931221,-87.6231005,nominatim
+4c25e6f0-230a-4ea9-99c0-8ac30a809d4f,Courtyard by Marriott Chicago at Medical District/UIC,41.8736647,-87.6661477,nominatim
+56824653-dfe5-4776-a089-423e18796d34,Courtyard by Marriott Chicago at Medical District/UIC,41.8736647,-87.6661477,nominatim
+90b8cde4-6823-4348-ad72-f07edacea59e,Doubletree,41.8928119,-87.6199576,nominatim
+3916f62a-4a56-4ad7-9598-6ae0713d0602,Drake,41.9004207,-87.6234192,nominatim
+93bbbf41-6a56-4d8d-a9e4-188e947d9d02,EMC2,41.8935645,-87.6216316,nominatim
+acdb5bdf-ab35-4134-8258-dfdce026c0a4,Eataly,41.892164,-87.6263766,nominatim
+5ff70bc9-91d7-49f3-8042-b7821c112e39,Embassy Suites,41.8915058,-87.6196694,nominatim
+8cb3a078-97e0-468e-aa20-67eb3be462d6,Embassy Suites,41.8915058,-87.6196694,nominatim
+94657afc-0436-421f-b928-de0f464c8351,Emerald Loop,41.8863702,-87.6265173,nominatim
+6e66516a-10f6-4a13-885d-c9c144bc2dfb,Eurostars,41.8943132,-87.6284307,nominatim
+4c4aaf2e-2e5d-4508-9d4e-42a85223f47d,Ever Restaurant,41.8868452,-87.660486,nominatim
+3f8aed41-a707-4454-b61b-3eb2c69ec9ea,Fairfield Inn,41.8911139,-87.6299868,nominatim
+ad1fcf8e-54cf-4c6d-b30b-56716f9de35c,Fairfield Inn,41.8911139,-87.6299868,nominatim
+16222053-b164-48ad-86b2-d90b4f45dacb,Fairmont,41.8861188,-87.6210458,nominatim
+b30e7e7a-9999-4a0b-91d5-d2035a4ebe93,Fashion Outlets of Chicago,41.8781,-87.6298,fallback
+5bb072e4-f584-4060-9ea3-a298c4484596,Field Museum of Natural History,41.8662215,-87.6168913,nominatim
+b7849405-a2a4-475d-8129-81f9191b3300,Flight Club,41.8866194,-87.6312554,nominatim
+5e91b706-eae2-4e5e-8ae3-085bc517de57,Flyover Chicago,41.8919035,-87.6090681,nominatim
+58c6c442-eff7-40e3-ab21-589ecb0319c9,Fogo de Chao,41.8942563,-87.6321226,nominatim
+363cebe0-f000-46b9-80ba-e3df5a748896,Fora,41.8871942,-87.6519478,nominatim
+cfd1b838-43d3-4489-aa3a-13cd2dd03835,Found Chicago,41.8781,-87.6298,fallback
+9383a251-cbcd-48ff-a3a7-6cc85d70b7a2,Four Seasons,41.8996386,-87.6248842,nominatim
+47318a7a-5aff-4d4d-9008-a63150b750c7,Freehand,41.8922477,-87.6273052,nominatim
+496eb597-d0ef-4312-8cbc-e5c8a49de418,Gale,41.9511651,-87.726892,nominatim
+61bfc9ff-2746-4485-977a-c1b6b1d66a92,Garrett Popcorn Shops,41.8822271,-87.6274208,nominatim
+8f0d5ae9-1531-4794-8e0b-8e12d53b318e,Garrett Popcorn Shops,41.8822271,-87.6274208,nominatim
+083c9dad-5d4b-4b3c-8802-d601dd515dad,Garrett Popcorn Shops,41.8822271,-87.6274208,nominatim
+49e46442-273f-4d1e-9f76-564b655261c6,Garrett Popcorn Shops,41.8822271,-87.6274208,nominatim
+20afa61a-69d3-4a31-a37a-4068108a7832,Garrett Popcorn Shops,41.8822271,-87.6274208,nominatim
+04262787-4b85-4d95-a301-c7b3b6068a6d,Garrett Popcorn Shops,41.8822271,-87.6274208,nominatim
+5b6e548e-d108-4995-9f1a-4ad228819e21,Geja's Cafe,41.918593,-87.6380077,nominatim
+69466b09-ac7c-4b96-b83e-11c91756b7f6,Goodman Theater Center,41.8781,-87.6298,fallback
+8c84468c-e58a-4eb7-acba-a9d1932f872a,Goose Island Taproom,41.8781,-87.6298,fallback
+bfb83e19-804b-456f-8edb-a722716ecee2,Grapes & Grains,41.8857633,-87.6496568,nominatim
+4563ec56-276b-4e55-b02c-cf4036ae1c96,Greek Islands,41.8789853,-87.6475092,nominatim
+2bafb42b-1910-4bdf-a8b6-ebfaebcaf543,Griffin Museum of Science & Industry,41.8781,-87.6298,fallback
+f9f32a6a-8280-4658-b26f-1591f7552f5c,"HI Chicago, the J. Ira and Nicki Harris Family Hostel",41.8781,-87.6298,fallback
+762fee73-00d8-411a-b65e-1d7c11d6bde2,Hampton Inn,41.8952518,-87.6229806,nominatim
+79c73935-be40-401f-aa8c-c8956c93cc6d,Hampton Inn,41.8952518,-87.6229806,nominatim
+43e97c98-e7c7-4f6c-8b71-0d4c2fd73fdd,Hampton Inn & Suites Chicago Medical District UIC,41.8728297,-87.6781505,nominatim
+94382a2a-4917-44d0-ab63-ce6237df694d,Hampton Inn & Suites Chicago Medical District UIC,41.8728297,-87.6781505,nominatim
+5403e57a-fb4b-4d5a-8aa8-80cc0f431167,Hampton Inn Chicago Downtown West Loop,41.8781,-87.6298,fallback
+1b247e01-94a0-4a03-9afc-20bbd3401f92,Hampton Inn Homewood Suites,41.8781,-87.6298,fallback
+f616e347-ea50-452b-a39d-828a82589556,Hampton Majestic,41.8808622,-87.6285869,nominatim
+c4e08b74-58c4-45cf-86e1-d17a3a3c5ea6,Harris Theater,41.8838877,-87.6219013,nominatim
+e30a5d78-46be-4314-bf01-702c19b01610,Haymarket Memorial,41.8848807,-87.6441288,nominatim
+2f1265f4-632e-41f8-a3f8-6334a120c627,Hilton Chicago,41.8803325,-87.6269504,nominatim
+17ceefb6-a20a-4126-8004-e02a0065230a,Hilton Garden Inn,41.8525873,-87.6230421,nominatim
+d9448803-c282-4ccd-91a6-ce94d1d2fdcc,Hilton Garden Inn,41.8525873,-87.6230421,nominatim
+afd352e9-eb35-435d-b619-494b8f64a389,Hilton Garden Inn,41.8525873,-87.6230421,nominatim
+8c1f57a0-ef66-484e-af4c-2440c7d1b4d1,Hilton Garden Inn/Hampton Inn/Home2 Suites,41.8525873,-87.6230421,nominatim
+24163594-cce9-48af-887a-33b2b9f99c1a,Hilton Suites Chicago Mag Mile,41.8952458,-87.6233239,nominatim
+5b81f334-a75b-4040-80c7-9d2f2089f419,Holiday Inn & Suites Chicago,41.8748726,-87.6399593,nominatim
+49807a9e-2ffc-49a6-bb8f-5be0c67b9e5a,Holiday Inn Wolf Point,41.8881356,-87.6378473,nominatim
+f514d869-ca42-49f6-83d0-eb64c4de33a7,Homewood Suites,41.8918965,-87.6262467,nominatim
+8d560815-fdab-4531-be30-fa65f7595c5b,Homewood Suites Hilton Garden Inn,41.8781,-87.6298,fallback
+6887c2a9-8d97-4ae5-8c8d-4d3d5648ce91,Homewood Suites by Hilton Chicago Downtown West Loop,41.8781,-87.6298,fallback
+88460c5f-46f6-403e-bf64-d493b3084558,Hotel BnB,41.8652258,-87.6243448,nominatim
+319023c3-0e26-4fcf-9f60-0cc0038ebb9e,Hotel Cass,41.8781,-87.6298,fallback
+e0b0de67-cf08-488e-b33a-9be0e0e9c71a,Hotel Chicago,41.8888632,-87.6264748,nominatim
+7a563d54-ec86-402d-926c-916c80026b36,Hotel Chicago West Loop,41.8779517,-87.6677751,nominatim
+315fc176-9cf0-43b2-a925-698e63c80dec,Hotel Felix,41.8946215,-87.6315484,nominatim
+d6173528-96c2-4adb-a7b5-d59da0f920ed,Hotel Godfrey,41.8945777,-87.6321416,nominatim
+bb6b095b-cdc7-49d3-a283-cd53caaedc4e,Hotel InterContinental,41.8913478,-87.623558,nominatim
+1000e24d-559b-45b2-bb6f-e078555a8a6f,Howl at the Moon,41.8902485,-87.6291445,nominatim
+7f27b473-2df0-4bfa-a7f5-f41117322754,Huntington Bank Pavilion,41.8633504,-87.6084927,nominatim
+cad45d01-caf0-4813-8421-f966ff4c8763,Hyatt Centric,41.8937576,-87.6223591,nominatim
+2e849575-3863-4e41-a89e-002bbbc81430,Hyatt Centric Mag Mile,41.8781,-87.6298,fallback
+54f43a24-6df1-4701-9306-aeac712aebf4,Hyatt House Chicago / West Loop-Fulton Market,41.8832666,-87.6552347,nominatim
+92ccb9c1-3fd2-4b19-9157-659af3f1c129,Hyatt Place,41.8001503,-87.5886098,nominatim
+4a0a0b11-5a2a-46c7-b709-be07c03f6fb2,Hyatt Place Chicago - Medical / University District,41.8738446,-87.6727075,nominatim
+e6a9c15e-5cbd-426f-be63-67e26cdc1860,Hyatt Place Chicago/Downtown-The Loop,41.8827773,-87.6356486,nominatim
+6cca4736-63f4-4a7f-b71b-be746ff8a068,Hyatt Regency,41.8874806,-87.6228364,nominatim
+83423881-a11f-48f0-814d-266668071b17,Hyatt Regency McCormick Place,41.8519722,-87.6179615,nominatim
+aa5afcf1-8a6f-4c19-a492-bbd302e1fd97,Island Party Hut,41.8879953,-87.6197841,nominatim
+76231451-71c1-4913-a88d-5e7fbba20bf5,JW Marriott,41.879266,-87.6330277,nominatim
+bdf89f72-fa5a-4eb4-9564-e958db6bbac0,Jane Addams Memorial Park,41.8925422,-87.612678,nominatim
+493862ce-28cd-4fe3-99ec-ebc8911fa07c,Kasama,41.8996921,-87.6756548,nominatim
+0d495ac6-0b15-465f-a5a2-5786567b9f88,Kimpton Gray,41.8808506,-87.6317624,nominatim
+002bef51-0b5d-4a9b-b04b-818a9cd9d1fc,Kingston Mines,41.928708,-87.6492146,nominatim
+4011b915-7580-48ef-9a44-fd2e17713b22,Kinzie,41.8890782,-87.6394928,nominatim
+8b5fad17-43c4-47e2-80a3-fb39b631333b,L7 by Lotte,41.8781,-87.6298,fallback
+fdd78cdf-92af-4497-acc8-0d48d0d451ae,La Quinta Inn & Suites by Wyndham Chicago Downtown,41.8815472,-87.6350782,nominatim
+e669031a-333b-40af-bc8d-4d6f0de19512,Langham,41.8884239,-87.6275117,nominatim
+474f8583-85d9-4747-bfe2-5fa04da99521,Le Meridien Essex,41.8717007,-87.6247523,nominatim
+497b3804-7683-47ce-b80b-918bba77d900,Legal Sea Foods,41.8878859,-87.6290756,nominatim
+7f85d039-6d56-4b3b-bfc6-5e7be75a66e3,Level Old Town,41.8781,-87.6298,fallback
+e15bc868-64a8-4545-a686-cdfc4b47304a,Level River North,41.8781,-87.6298,fallback
+61768a34-2c0f-45d4-9905-974768fb63ec,Lincoln Park Zoo,41.9212558,-87.6337656,nominatim
+4eccac9d-8e60-4c8a-908c-43525f504183,Lizzie McNeil's,41.8781,-87.6298,fallback
+bcc3dcec-87ce-4e0f-a20b-384b990e19b7,Loews,41.8899672,-87.6188329,nominatim
+5e9d09c4-ace3-4d87-9e6d-7b0cc5e844fb,LondonHouse,41.8781,-87.6298,fallback
+fbac8988-3403-49f1-a8c0-bb30bbf46c8a,Lou Malnati's,41.9607177,-87.6835958,nominatim
+70b5a14e-2929-4a35-8e6c-682c14adb4ae,Lou Malnati's,41.9607177,-87.6835958,nominatim
+645a1c01-9051-4ef4-939b-a92521c4abe6,Lou Malnati's,41.9607177,-87.6835958,nominatim
+5f80e827-2e15-40f7-b873-1963d407d632,Lyric Opera of Chicago,41.8781,-87.6298,fallback
+b86cafa4-79b2-4c30-8215-918bee24f61e,Macy's State St.,41.8838623,-87.6270594,nominatim
+b27be0cb-8774-401b-9aaa-2d5c1fda212d,Maggie Daley Park,41.8827266,-87.6187299,nominatim
+5e3ec46b-496d-4536-b068-465aa2f01853,Mario's Italian Lemonade,41.8695748,-87.6537263,nominatim
+fc388afa-ccbe-434a-a0a8-a19f2bd80d40,Marriott,41.9852988,-87.8413561,nominatim
+f3aeb2ff-0404-4bb7-a9a8-037146b9726b,Marriott Marquis,41.8536541,-87.6202477,nominatim
+4794a41b-886c-41e5-b298-63d0db8c936c,McCormick Place,41.851689,-87.6164754,nominatim
+64b4a648-f762-4fa8-9967-3e9b9627f5b3,McDonald's,41.8928566,-87.6315646,nominatim
+a504677e-8562-4ce1-af83-e0bf6c4a4112,Merchandise Mart,41.8885435,-87.6353813,nominatim
+38d22200-3acd-46b2-8dfa-c345796faabe,Midland Hotel,41.8797981,-87.6331433,nominatim
+a63cda67-4022-422d-98a5-26090e93a8fe,Millennium Hall,41.8781,-87.6298,fallback
+500cbafd-8445-4653-8040-b1b454a4b1d3,Millennium Knickerbocker,41.8997836,-87.6227266,nominatim
+1eb0d402-8f19-46df-90f8-0b1c953cfa88,Millennium Park,41.8825754,-87.6225361,nominatim
+eb682cb2-0b92-4134-8a6a-330f7501203d,Milton Lee Olive Park,41.8942225,-87.6103414,nominatim
+23009197-97af-46e0-ab84-86de5152ec48,Mindworks: The Science of Thinking,41.8781,-87.6298,fallback
+86830244-2faa-4ba2-a215-4b79b6e0d81e,Moe's Cantina - River North,41.8890572,-87.6332026,nominatim
+d5ce36a8-2b44-42c5-ae84-ddabab2228ec,Moe's Cantina - River North,41.8890572,-87.6332026,nominatim
+b7bb46e5-edda-4ca6-9c29-c06644601edb,Monteverde Restaurant & Pastificio,41.881958,-87.6530228,nominatim
+c22148d9-acd8-4dd8-9d44-e32b3f7bcee0,Moxy,41.891847,-87.6329821,nominatim
+3a867f33-9c48-45e8-acb7-a5c95102a32a,Muddy Waters,41.8351934,-87.6169142,nominatim
+fee6875f-c61c-4d9f-a828-73e3446a3a6c,Museum of Broadcast Communications,41.8846038,-87.6393207,nominatim
+27755721-8818-411e-83f3-80797b4cb084,Museum of Contemporary Art,41.8972217,-87.6211234,nominatim
+3f423ab0-764c-495c-ab5d-f3b1ab3011c5,Museum of Contemporary Photography,41.8742073,-87.6245139,nominatim
+791cac93-cc0f-4860-a7be-73a1d128683e,Museum of Illusions,41.8830605,-87.626843,nominatim
+650999f0-df5c-464b-872c-7614deae2905,Nancy's Pizza West Loop,41.8781,-87.6298,fallback
+ad80bfc5-a050-4c70-a66d-08433c54aa23,National Hellenic Museum,41.8769073,-87.6468974,nominatim
+bf8c06e2-409f-499a-8a4c-ada9fc01960c,National Museum of Mexican Art,41.8561139,-87.6729812,nominatim
+44084bc7-1d6b-4c96-9c5c-cb49ed36427f,Navy Pier,41.8917999,-87.6041447,nominatim
+04481351-3fde-49f7-b0ea-88c8cc71fe46,Nederlander Theatre,41.8849527,-87.6288687,nominatim
+0d3f9129-9ece-4786-958a-18f45365dea5,Neiman-Marcus,41.8960201,-87.6239243,nominatim
+9200c01b-a9aa-446f-b67b-ac7b9a743639,Nike,41.894443,-87.6238972,nominatim
+bf592b8a-d87d-4dc2-a4a0-d4c45a7ac6a4,Nobu Hotel Chicago,41.8846791,-87.6494793,nominatim
+72384069-0f15-4a7b-9c0a-fb47c2804458,Nordstrom,41.8912793,-87.6260497,nominatim
+b9e02a40-1389-431c-bc6c-ead789abf090,Nordstrom Rack,41.8685609,-87.639745,nominatim
+d65176b1-8e20-4458-b462-049875cde51f,Northman Beer & Cider Garden,41.8882656,-87.621614,nominatim
+c145a4a6-0a9c-4bce-9c0e-6e221e0563b8,Oak St. Beach,41.9029752,-87.622878,nominatim
+a0d0c5ec-074e-4fb4-b112-9caee21d717a,Oak Street District,41.8781,-87.6298,fallback
+dd1e195c-83d6-4fe8-b09d-3c0eacc59059,Ohio House,41.8927247,-87.633172,nominatim
+d14fb43f-6832-4512-918e-9b1d33446f7c,Ohio St. Beach,41.8934893,-87.6125998,nominatim
+9c408364-019f-4639-bc18-46f728259492,Omni,41.7060574,-87.5524097,nominatim
+efb07b22-0160-4528-81b6-9a474fce0e54,Oprah Winfrey Mural,41.8812868,-87.6486727,nominatim
+14733c5f-0069-4f0e-81c8-83f14cf74be6,Origin of Great Chicago Fire of 1871,41.8781,-87.6298,fallback
+538a2300-ab23-4f1e-bac8-591867e2eafa,Osteria del Pastaio,41.8781,-87.6298,fallback
+40bc7b67-8e6e-43d2-a649-235e24f7328b,Osteria del Pastaio,41.8781,-87.6298,fallback
+26de0f73-448c-4a37-bc6d-eea719dab500,"PB&J: Pizza, Beer and Jukebox",41.8781,-87.6298,fallback
+d5c859ea-fbc5-4196-99ed-6082bb09354e,Palmer House Hilton,41.8803325,-87.6269504,nominatim
+5fa3f7a6-0017-4fa2-9523-fc815ff7e1df,Park Hyatt,41.8972351,-87.6252667,nominatim
+c335fe35-0888-4f48-95f2-a1d3046436d8,Pasta Veneta,41.886873,-87.656636,nominatim
+7b95c7d0-ac83-48b5-a2fb-22ece00e43fd,Pasta Veneta,41.886873,-87.656636,nominatim
+4ec76099-f6f8-4a85-8a18-f18198507539,Pendry,41.8865558,-87.6250085,nominatim
+c8a62a0d-9360-475e-86f5-f7e6d844761c,Peninsula,41.8962892,-87.6249808,nominatim
+94e40694-a823-4b46-a8c2-cad148f2dacd,Ping Tom Park,41.8588987,-87.6325387,nominatim
+7df814b4-23d4-48eb-b86e-51325927c1e4,Ping Tom Park,41.8588987,-87.6325387,nominatim
+3fe93f70-12cb-4edd-9134-eabc077a6747,Portillo's,41.9463296,-87.7121809,nominatim
+d85af6a8-8d67-4b9a-9bc9-39ac42ea30d9,Primark,41.8830101,-87.627367,nominatim
+fa33cd1d-9ae6-4f76-8774-6801edaff5b7,Publican Quality Meats,41.8866081,-87.6484922,nominatim
+4ca9eb0b-6bf7-44f6-b931-3f5e3a744f30,Purple Pig,41.8907486,-87.624603,nominatim
+9aa11a0d-8a30-4044-821f-99bb30904ca3,Radisson Blu,41.8865127,-87.6201484,nominatim
+4e9cbe8e-94a3-435f-8883-8fe07a4e8e56,Raising Cane's Chicken Fingers - Loop,41.882248,-87.6247084,nominatim
+b3282532-392f-4a65-bb0f-7a6e21fac982,Raising Cane's Chicken Fingers - Loop,41.882248,-87.6247084,nominatim
+be664953-f2d7-4ae6-8e94-1101c88f1a2a,Raising Cane’s Chicken Fingers - Lincoln Park,41.9251004,-87.6485641,nominatim
+131e6504-9da7-4ea3-8da1-0ea7386a4aab,Raising Cane’s Chicken Fingers - Lincoln Park,41.9251004,-87.6485641,nominatim
+1cc17f6b-9ea9-40d1-b9ea-879960a20e35,Raising Cane’s Chicken Fingers - Loyola,41.8781,-87.6298,fallback
+8f0be062-19b1-4a4f-94f9-d9ddeebfa66d,Raising Cane’s Chicken Fingers - Loyola,41.8781,-87.6298,fallback
+d2fb84ed-cfee-4f97-a122-ae1cad1ae003,Raising Cane’s Chicken Fingers - South Loop,41.882248,-87.6247084,nominatim
+8beb6e82-e512-49eb-8230-adf20094e5aa,Raising Cane’s Chicken Fingers - South Loop,41.882248,-87.6247084,nominatim
+3cb3f138-7737-4aa0-813b-0a2c7064e595,Raising Cane’s Chicken Fingers - West Loop,41.8847,-87.6483994,nominatim
+4564da6b-a91a-432f-b482-cbb545f48a76,Raising Cane’s Chicken Fingers - West Loop,41.8847,-87.6483994,nominatim
+07123afa-3536-4411-9cfb-2a764a0cb700,Raising Cane’s Chicken Fingers - Wrigleyville,41.9491117,-87.6582212,nominatim
+ac00804f-ed14-4e2e-9154-0eb97831b648,Raising Cane’s Chicken Fingers - Wrigleyville,41.9491117,-87.6582212,nominatim
+a80991f7-6c46-4acf-b640-6d2417e81457,Recess,41.8892308,-87.6495781,nominatim
+41293769-1c78-4c45-b118-1e7c5a114446,Renaissance,41.9831406,-87.8409362,nominatim
+0113d8b9-f205-416e-aff3-d685385b3056,Residence Inn,41.8816746,-87.6321072,nominatim
+83383f69-4211-4868-9b20-d6a6e89f86ed,Residence Inn,41.8816746,-87.6321072,nominatim
+983de8e2-e0c4-481b-a2e4-dcee9576464b,Richard H. Driehaus Museum,41.8942846,-87.6265031,nominatim
+776ef29b-6386-4d97-a304-df47b1e396fb,Richard's Bar,41.8910436,-87.6470004,nominatim
+8077f748-42ac-4106-8c88-6f555d271139,Ritz-Carlton,41.8977805,-87.6222512,nominatim
+f611c0a4-5c6f-4f39-bef8-9d534889f2e5,Riu,41.8936003,-87.6232845,nominatim
+5c9865f0-0768-465d-b0aa-bf2aa974327a,Robert's Pizza & Dough Company,41.8781,-87.6298,fallback
+dafb4595-6b64-4bbc-ac21-ae13d041bdb4,Roll Up,41.8781,-87.6298,fallback
+0b1bab11-a4df-488e-b6b3-b2ffadc71bc3,Roll Up,41.8781,-87.6298,fallback
+daec936e-ce9f-472c-9764-fca57ed8fdc8,Rosebud Taylor Street,41.8694789,-87.6642957,nominatim
+85fbd452-0b78-45e4-818b-a5584650a5be,Rosebud on Rush,41.895595,-87.6258346,nominatim
+92b7eee6-5f57-4099-9e24-b6ae729f2e3a,Rosetta Italian,41.8814165,-87.6289457,nominatim
+00239dbc-63a5-4ce1-9c87-8dc8afd8fa99,Route 66 League,41.8781,-87.6298,fallback
+6f976c55-fd09-4024-a2d4-e20cb355a109,Route 66 in Illinois,41.8781,-87.6298,fallback
+519341a8-5a5a-4ca3-bc84-c95599b8cbcc,Route 66 in Illinois,41.8781,-87.6298,fallback
+f5a85be1-1965-499c-9808-40707ef5d1e9,Royal Sonesta,41.8841092,-87.6336242,nominatim
+3af4c1b1-4d30-4910-ab84-59f346b1a544,Royal Sonesta River North,41.8911493,-87.6278016,nominatim
+e36210c6-b094-423a-948d-648b70453b94,Sable,41.8893891,-87.6238856,nominatim
+4e0f0984-f108-4933-970b-c69ea1477f4f,Saigon Sisters,41.8840995,-87.6406518,nominatim
+06dffd31-ae21-4531-bc2c-04df20f85c1d,Saks 5th Ave.,41.8781,-87.6298,fallback
+149e5b06-fafe-45a5-987f-0a2ee647f8d2,Selva,41.8781,-87.6298,fallback
+a06bbd92-c336-49f9-908b-a697a0b25d60,Shedd Aquarium,41.8676361,-87.6136789,nominatim
+11a1045b-810d-4e53-9197-7fd4a5fca6a9,Sheraton,41.8891374,-87.6194796,nominatim
+9b230cd5-0362-4a8a-9f5b-8ca06bc30803,Shoreline Sightseeing,41.8906314,-87.6116569,nominatim
+cdea5fbf-6b8f-4b44-8851-1ce8fccd6754,Shoreline Sightseeing,41.8906314,-87.6116569,nominatim
+9bc1b4fa-ea16-47e4-a091-33e5e3969a05,Silversmith,41.881682,-87.6266569,nominatim
+7e7a14e6-4a70-44d0-8dac-2a4ac9b58de5,Skydeck Chicago,41.8785046,-87.6358868,nominatim
+7281a264-4f29-4522-b9fc-c44d317f6c2c,Smith & Wollensky,41.8879163,-87.6285778,nominatim
+19d6427a-63af-46fc-9b69-e8bdeeb060ea,Sofitel,41.8986213,-87.6273149,nominatim
+433ff4c9-6138-4dcf-8ab2-584fe99b0e52,Soho House Chicago,41.8837644,-87.6482573,nominatim
+a831daee-9505-4d4b-84fb-4a55ad091ac1,Soldier Field Tour,41.8781,-87.6298,fallback
+6cd79913-3dea-403b-a76b-2424d394b2cb,Sonesta ES,41.8998458,-87.6213927,nominatim
+4f6cb2a9-fbce-48b3-bd54-828ece89ffc4,Sports Illustrated Resorts,41.8781,-87.6298,fallback
+6b55795c-669e-435e-8971-37fde427393a,Sports Illustrated Resorts,41.8781,-87.6298,fallback
+602e19a8-8126-4447-b125-4ea6bf2f2c19,SpringHill Suites,41.9851242,-87.8298626,nominatim
+b3e0f981-4a6c-4249-881e-f7c0df856fdb,St. Clair,41.8914024,-87.6226683,nominatim
+09edc7a5-adc5-4b62-8aef-bf419d6ed60d,St. Regis,41.8872334,-87.6172586,nominatim
+ee1cd8e1-c553-4a4e-8d67-2dc599f3c4d2,Starbucks Reserve Roastery,41.8781,-87.6298,fallback
+500b3ef0-5a38-4656-b314-3fd541ae27bc,Staypineapple,41.8830439,-87.6282334,nominatim
+8a157812-2a9d-4f20-943e-d47d8ed2d3c4,Stetson's,41.8870627,-87.6223486,nominatim
+096d51e9-abb2-422a-9ecc-c201c21bf277,Studio W.I.P.,41.8781,-87.6298,fallback
+23da399f-67a6-4306-8910-2d230178dcfd,Su Taqueria El Rey Del Taco,41.8793444,-87.6689503,nominatim
+689fdcc8-ef66-4b89-8404-dafba4f5344d,Swift & Sons,41.8869686,-87.6524319,nominatim
+475955a8-f41b-4c88-9969-e8f529405a83,Swissotel,41.8873452,-87.6195255,nominatim
+eaa5167b-91d9-4744-a8d0-32a6e1b5764e,Talay Chicago,41.8817668,-87.657892,nominatim
+9105ebb9-a0c7-4a58-aa27-58821bedd89b,Talbott,41.8994577,-87.627489,nominatim
+a7079f7b-1af4-4663-993e-8c2099d4daf6,Tapas Valencia,41.8610689,-87.6279127,nominatim
+01bf94e7-d01f-451c-b5cc-7fa0ef1ee9d3,Target,41.8771063,-87.6554712,nominatim
+199e5b2c-9b6d-4e8b-8b5e-749f9c887267,The Aberdeen Tap,41.8901554,-87.6549295,nominatim
+e099ec01-4406-4d37-95a2-d21a005d5443,The Aviary,41.8864563,-87.6520185,nominatim
+b95a7e34-9cd6-41cd-9445-5c9d905dcba8,The Barn Hockey Bar,41.8795856,-87.6679562,nominatim
+1c7ef4bf-a014-4b12-b1b8-d051a3c2a929,The Berghoff,41.8793454,-87.6284801,nominatim
+b43586e8-0812-4c14-926d-f3fcda24410e,The Blake,41.8781,-87.6298,fallback
+280c38f7-9929-48af-b70c-2a9332df553f,The Buckingham,41.8767698,-87.6254209,nominatim
+2f89c142-063f-48be-9df8-bc3887c454ca,The Embassy Public House,41.8781,-87.6298,fallback
+22a6c2ca-5511-4081-bb78-f739e3bf4384,The Emily Hotel,41.8874771,-87.6518093,nominatim
+a8c510fa-71bb-484e-b1af-896674f19c21,The Evie,41.8781,-87.6298,fallback
+bbc4e2eb-efbe-4bc9-83e2-2a38efc61db0,The Gwen,41.8912803,-87.6251877,nominatim
+3adf7ff3-a2c2-434e-afe7-b0d0d004153a,"The Hoxton, Chicago",41.8781,-87.6298,fallback
+38b7edc6-48db-4cf0-9aae-4d05963637c7,The LaSalle,41.9031938,-87.6336884,nominatim
+cab5cddb-260e-424e-a706-59855f90b12f,The Neighborhood Hotel Little Italy,41.8690811,-87.6628081,nominatim
+da057913-9a02-4232-9a7d-c2ea84c453ef,The Old Post Office,41.8781,-87.6298,fallback
+9e5dc789-a3a2-4c2a-8646-574ad5c1f294,The Publishing House Bed and Breakfast,41.8781,-87.6298,fallback
+deb3f631-4458-4912-abc0-84fc17b60b58,The Second City,41.9116127,-87.6348918,nominatim
+93c68218-7af9-4718-83e9-186def3d0026,The Shops at North Bridge,41.891426,-87.6249707,nominatim
+5abb98ff-e43b-46d0-9903-7da66ad3948f,The Wade,41.8938745,-87.6156003,nominatim
+c17b1d6d-11aa-49c2-a620-84bf72506d84,Theater of the Mind,41.8781,-87.6298,fallback
+ae9313a1-734d-4039-9ad3-61b627a9ab2b,Theater of the Mind,41.8781,-87.6298,fallback
+4d32cae3-7157-45d5-9e40-2282b4086a5b,Third Rail Tavern,41.8815012,-87.6556577,nominatim
+7b4c802b-601b-44b2-99e1-9b65232ea8a4,Thompson,41.8847822,-87.6673763,nominatim
+46c33928-32af-4426-8ec5-db96d42edf83,Timothy O'Toole's Pub,41.8932428,-87.6204681,nominatim
+b00df4de-805e-4940-a4af-28eb69888de9,TraveLodge,41.874246,-87.6255031,nominatim
+25d65999-8943-418e-9c58-649330f792de,Tribune Tower,41.890584,-87.6232046,nominatim
+2303ceff-d524-4841-a4a1-fe97476dde43,Trump Int'l,41.8781,-87.6298,fallback
+a671d42f-4db6-46b0-a6e4-78c0a7d1af0e,Tzuco,41.8955117,-87.6284956,nominatim
+9b5e593d-e1db-46ae-a15b-f2d9b3eb224d,Ukrainian National Museum,41.894607,-87.6840067,nominatim
+66a2e0b5-bc45-4fe7-aae5-87a74cf890d7,Union Park,41.88419,-87.665168,nominatim
+7c3b8e81-125d-4e29-8540-b9f6c9b5214a,Union Station,41.878701,-87.6404084,nominatim
+adfcbe83-44e3-48cd-b9e8-21a774b4dfa8,United Center,41.8806831,-87.6741851,nominatim
+1b3c8be6-9dcc-41bb-9285-a077203aa03f,Vertiport Chicago,41.8628345,-87.6702925,nominatim
+6504e7b0-83d9-4b44-85af-12459e176e9d,Viaggio Restaurant Chicago,41.8814724,-87.6532669,nominatim
+c23bede8-6ac1-487a-a312-c333d1f1e265,Viceroy,41.9023778,-87.6289158,nominatim
+aa34c73a-30c5-4912-a591-89108c676cf3,Voco,41.8781,-87.6298,fallback
+52bd65c2-e431-4558-90a6-6dd907ff5a2b,Vosges Haut-Chocolat,41.8781,-87.6298,fallback
+8e017b7a-3c2e-4f8d-a33e-d2d26c0d5bd2,Vosges Haut-Chocolat,41.8781,-87.6298,fallback
+9887104e-c3d1-48b3-adfa-cabd5303713d,WNDR Museum,41.880525,-87.6559982,nominatim
+cdcd0f08-0f9b-49d4-9fed-e825b3541754,Waldorf Astoria,41.8997426,-87.6274764,nominatim
+4b3e4257-6f66-4fb6-b13f-a32620b36a7b,Warwick Allerton,41.8952056,-87.6237615,nominatim
+cb75a533-fc20-4a0e-ba44-c7cb493b9b5c,Water Tower,41.9862574,-87.7202243,nominatim
+02672df6-c98c-445f-9fa6-32bfc1f6887e,Water Tower Place,41.8981348,-87.6229321,nominatim
+f10a7db2-d660-4033-b4f5-7f8e66917c81,Weather Mark Tavern,41.8619185,-87.6235586,nominatim
+ed29288d-9494-4625-a6d8-95abc92e5888,Westin,41.8994421,-87.6232342,nominatim
+f667c8b9-cd6b-433e-ae24-a57adefcc940,Westin River North,41.88817,-87.6300608,nominatim
+3930c498-4afe-43fd-a7d7-0501b64eaaec,Whitehall,41.8989328,-87.6257157,nominatim
+c56473d8-9447-409c-9a9f-6cdb2eea31e1,Willie Dixon Blues Heaven Foundation,41.8781,-87.6298,fallback
+be807ef4-c1d2-44bd-a480-2c64cecc4d46,Willis Tower,41.878738,-87.6359612,nominatim
+c8e2ab0a-cd1e-4a6a-953a-3bc83981ea04,Wintrust Arena,41.8536992,-87.6213549,nominatim
+43c8ff8f-4ef6-4ecb-8b25-7474652c1217,Wrigley Building,41.889912,-87.6248201,nominatim
+ceeb4b63-3053-430f-9620-18e686ba3030,Yolk - Marina City,41.8885263,-87.6283588,nominatim
+9373e01a-e0dd-4ac4-8b9e-4cef1bd81911,Yolk - South Loop,41.8688255,-87.6245382,nominatim
+d7b54985-bba1-4e99-8e66-2d5696a03b85,Yolk - Streeterville,41.8921642,-87.6180984,nominatim
+a7c60d6b-97eb-4987-a9d3-56dcbb44e326,Yolk - West Loop,41.8821339,-87.6409831,nominatim
+be53ba5f-2962-46fd-a56d-ed7a07d9d605,avec Restaurant,41.8937721,-87.6329701,nominatim
+e8ad5446-06db-4a1d-b2b9-7fb9fa316688,necessary & sufficient coffee,41.9283765,-87.7180606,nominatim
+e8c24ea6-17a5-468a-a856-a4a0e793e50d,theWit,41.886084,-87.6276358,nominatim

@@ -1,0 +1,14 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Caches
+data/llm_cache.sqlite
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# OS junk
+.DS_Store

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChicagoDoes Recommender</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <!-- Leaflet (open-source map, no API key) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="brand">
+          <span class="brand__mark">CD</span>
+          <div>
+            <div class="brand__name">ChicagoDoes Recommender</div>
+            <div class="brand__sub">Content-based picks from the interactive map</div>
+          </div>
+        </div>
+        <div id="health" class="health">checking…</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- ============== Form column ============== -->
+      <section class="card form-card">
+        <h2>Tell us about your trip</h2>
+
+        <p class="form-card__lead muted">
+          Choose your preferences below. Optionally simulate a returning visitor (demo only).
+        </p>
+
+        <form id="rec-form" class="form">
+          <label class="field">
+            <span>Simulate returning visitor (demo only)</span>
+            <select id="user_key">
+              <option value="">— New visitor (default) —</option>
+            </select>
+          </label>
+
+          <div class="row two">
+            <label class="field">
+              <span>Traveler type</span>
+              <select id="traveler_type">
+                <option value="">No preference</option>
+                <option value="solo">Solo</option>
+                <option value="couple">Couple</option>
+                <option value="family">Family</option>
+                <option value="group">Group of friends</option>
+                <option value="business">Business</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Vibe</span>
+              <select id="vibe">
+                <option value="">No preference</option>
+                <option value="chill">Chill</option>
+                <option value="adventurous">Adventurous</option>
+                <option value="foodie">Foodie</option>
+                <option value="nightlife">Nightlife</option>
+                <option value="cultural">Cultural</option>
+                <option value="outdoorsy">Outdoorsy</option>
+              </select>
+            </label>
+          </div>
+
+          <fieldset class="field">
+            <legend>Interests</legend>
+            <div id="interests" class="chips"></div>
+          </fieldset>
+
+          <fieldset class="field">
+            <legend>Avoid</legend>
+            <div id="avoid" class="chips chips--muted"></div>
+          </fieldset>
+
+          <label class="field">
+            <span>Trip length</span>
+            <select id="trip_days">
+              <option value="1">1 day</option>
+              <option value="2" selected>2 days</option>
+              <option value="3">3 days</option>
+              <option value="4">4 days</option>
+              <option value="5">5 days</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Anything else? (free text)</span>
+            <textarea id="free_text" rows="3"
+              placeholder="e.g. I love jazz, deep-dish pizza, and outdoor sculptures"></textarea>
+          </label>
+
+          <label class="field field--checkbox">
+            <input type="checkbox" id="use_ai_itinerary" />
+            <span>
+              Plan my days with AI — schedules only from your
+              <strong>Top picks</strong> (data-ranked first, AI arranges second).
+            </span>
+          </label>
+          <p id="ai-itin-hint" class="muted field-hint hidden">
+            Get recommendations first, then build the itinerary. We never add places
+            that are not already in your list.
+          </p>
+
+          <div class="actions">
+            <button type="submit" id="submit-btn" class="btn btn--primary">
+              Get recommendations
+            </button>
+            <button type="button" id="plan-btn" class="btn btn--ghost" disabled>
+              Build AI itinerary
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ============== Results column ============== -->
+      <section class="results">
+        <div id="status" class="status hidden"></div>
+
+        <div id="welcome" class="card welcome">
+          <h2>Welcome to ChicagoDoes</h2>
+          <p class="muted">
+            Tell us about your trip on the left and we'll mine our
+            <b id="welcome-events">11.7k</b> real engagement events to
+            recommend the best spots out of
+            <b id="welcome-locations">350</b> places — with a
+            walkable day-by-day itinerary from your Top picks, and
+            transparent score breakdowns behind every place.
+          </p>
+          <ul class="welcome__feats">
+            <li><span>📊</span> Each recommendation shows the data behind it</li>
+            <li><span>🗺️</span> AI itinerary only schedules your data-ranked Top picks</li>
+            <li><span>👥</span> Matched against behaviourally similar real visitors</li>
+          </ul>
+          <div id="welcome-trending" class="welcome__trend hidden">
+            <div class="welcome__trend-label">🔥 Trending right now</div>
+            <div id="welcome-trend-row" class="welcome__trend-row"></div>
+          </div>
+        </div>
+
+        <div id="reco-panel" class="card hidden">
+          <header class="card__header">
+            <h2>Top picks</h2>
+            <div id="reco-meta" class="muted"></div>
+          </header>
+          <div id="archetype" class="archetype hidden"></div>
+          <div id="similar-users" class="similar hidden"></div>
+          <p id="reco-scroll-hint" class="reco-pager-hint muted hidden">
+            Page <span id="reco-page-num">1</span> of <span id="reco-page-total">1</span>
+            · <span id="reco-range"></span> of <span id="reco-count"></span>
+          </p>
+          <div class="reco-carousel">
+            <button type="button" id="reco-prev" class="reco-carousel__btn" aria-label="Previous page" disabled>‹</button>
+            <div class="reco-carousel__viewport">
+              <div id="reco-grid" class="grid reco-grid reco-grid--3"></div>
+            </div>
+            <button type="button" id="reco-next" class="reco-carousel__btn" aria-label="Next page">›</button>
+          </div>
+        </div>
+
+        <div id="itin-panel" class="card hidden">
+          <header class="card__header">
+            <h2>Your itinerary</h2>
+            <div id="itin-summary" class="muted"></div>
+          </header>
+          <div id="itin-notice" class="itin-notice hidden"></div>
+          <div id="itin-skip" class="itin-skip hidden"></div>
+          <div id="itin-days" class="days"></div>
+
+          <!-- A4: refinement chat -->
+          <div class="refine">
+            <h3>Tweak your plan</h3>
+            <div class="refine__row">
+              <input type="text" id="refine-text"
+                placeholder="e.g. make day 2 more chill, no bars, swap in a museum" />
+              <button type="button" id="refine-go" class="btn btn--ghost btn--sm">Apply</button>
+            </div>
+            <div id="refine-status" class="muted"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- LLM modal -->
+    <dialog id="info-modal" class="modal">
+      <article>
+        <header>
+          <h3 id="modal-title">Loading…</h3>
+          <button class="modal__close" aria-label="Close"
+            onclick="document.getElementById('info-modal').close()">×</button>
+        </header>
+        <div id="modal-body">
+          <p>Asking the concierge…</p>
+        </div>
+      </article>
+    </dialog>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
