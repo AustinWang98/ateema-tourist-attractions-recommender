@@ -53,7 +53,7 @@ CHICAGO_LOOP = (41.8781, -87.6298)
 
 
 def _normalise(name: str) -> str:
-    return name.strip().lower()
+    return name.strip().lower().replace("\u2019", "'").replace("\u2018", "'")
 
 
 def load_cache(path: Path) -> Dict[str, Dict]:

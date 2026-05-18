@@ -1426,5 +1426,461 @@
     "lon": -87.6276358,
     "display_name": "ROOF on theWit, 201, North State Street, Theatre District, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60601, United States",
     "source": "nominatim"
+  },
+  "21c museum hotel": {
+    "lat": 41.8929963,
+    "lon": -87.6259605,
+    "display_name": "55 E. Ontario St., Chicago IL 60611 → Hotel 55 Chicago Downtown, 55, East Ontario Street, River North, Near North Side",
+    "source": "firecrawl+nominatim"
+  },
+  "900 n. michigan shops": {
+    "lat": 41.8996659,
+    "lon": -87.6256206,
+    "display_name": "900 N Michigan Ave, Chicago, IL 60611 → 900 North Michigan, 900, North Michigan Avenue, Gold Coast, Near North Side, Chi",
+    "source": "firecrawl+nominatim"
+  },
+  "360 chicago observation deck": {
+    "lat": 41.8988813,
+    "lon": -87.6230962,
+    "display_name": "875 N Michigan, 875, North Michigan Avenue, Streeterville, Gold Coast, Near North Side, Chicago, North Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "known_address+nominatim"
+  },
+  "al's #1 italian beef - river north": {
+    "lat": 41.8942867,
+    "lon": -87.6155475,
+    "display_name": "2668 - Chicago-Erie St → East Erie Street, Streeterville, Near North Side, Chicago, North Chicago Townshi",
+    "source": "firecrawl+nominatim"
+  },
+  "best western grant park": {
+    "lat": 41.8691254,
+    "lon": -87.6246855,
+    "display_name": "1100 S Michigan Avenue, Chicago, Il → Best Western Grant Park Hotel, 1100, South Michigan Avenue, Dearborn Park, Loop,",
+    "source": "firecrawl+nominatim"
+  },
+  "billy goat tavern (near united center)": {
+    "lat": 41.8811759,
+    "lon": -87.6658828,
+    "display_name": "1535 W Madison St, Chicago, IL → Billy Goat Tavern & Grill, 1535, West Madison Street, Near West Side, Chicago, W",
+    "source": "firecrawl+nominatim"
+  },
+  "chicago fire department - engine co. 18": {
+    "lat": 41.863971,
+    "lon": -87.6560767,
+    "display_name": "1360 S Blue Island Ave Chicago, IL 60608 → 1360, South Blue Island Avenue, Roosevelt Square, Little Italy, Near West Side, ",
+    "source": "firecrawl+nominatim"
+  },
+  "chicago fireboat tours": {
+    "lat": 41.8857472,
+    "lon": -87.6114569,
+    "display_name": "111 N. Lake Shore Drive Chicago, Il 60601 → DuSable Harbor, 111, North Lake Shore Drive, Streeterville, Near North Side, Chi",
+    "source": "firecrawl+nominatim"
+  },
+  "chicago symphony orchestra": {
+    "lat": 41.8789844,
+    "lon": -87.625093,
+    "display_name": "Symphony Center, 220, South Michigan Avenue, Jewelers Row, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60604, United States",
+    "source": "firecrawl+nominatim_name"
+  },
+  "chicago's north shore": {
+    "lat": 41.8871733,
+    "lon": -87.6138836,
+    "display_name": "North Jean Baptiste Point DuSable Lake Shore Drive, Lakeshore East, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "firecrawl+nominatim_name"
+  },
+  "citizen m": {
+    "lat": 41.8815571,
+    "lon": -87.6259556,
+    "display_name": "19 S Wabash Ave, Chicago, IL → Iwan Ries, 19, South Wabash Avenue, Jewelers Row, Loop, Chicago, South Chicago T",
+    "source": "firecrawl+nominatim"
+  },
+  "city cruises chicago": {
+    "lat": 41.8917999,
+    "lon": -87.6041447,
+    "display_name": "600 East Grand Avenue Chicago, IL → Navy Pier, 600, East Grand Avenue, Near North Side, Chicago, North Chicago Towns",
+    "source": "firecrawl+nominatim"
+  },
+  "clark street in lincoln park": {
+    "lat": 41.9246456,
+    "lon": -87.6395705,
+    "display_name": "2325 N Clark St, Chicago, IL 60614 → Reebie Storage & Moving Co, 2325-2333, North Clark Street, Mid-North District, L",
+    "source": "firecrawl+nominatim"
+  },
+  "fashion outlets of chicago": {
+    "lat": 41.9750415,
+    "lon": -87.8670551,
+    "display_name": "Fashion Outlets of Chicago, 5220, Fashion Outlets Way, Rosemont, Leyden Township, Cook County, Illinois, 60018, United States",
+    "source": "firecrawl+nominatim_name"
+  },
+  "found chicago": {
+    "lat": 41.9560758,
+    "lon": -87.6933972,
+    "display_name": "4108 N Rockwell St, Chicago, IL 60618 → 4108, North Rockwell Street, North Center, Chicago, Jefferson Township, Cook Cou",
+    "source": "firecrawl+nominatim"
+  },
+  "goose island taproom": {
+    "lat": 41.8870058,
+    "lon": -87.6722122,
+    "display_name": "1800 W Fulton St, Chicago, IL → Goose Island Brewery, 1800, West Fulton Street, Kinzie Industrial Corridor, Near",
+    "source": "firecrawl+nominatim"
+  },
+  "hi chicago, the j. ira and nicki harris family hostel": {
+    "lat": 41.8755687,
+    "lon": -87.6273124,
+    "display_name": "24 E Ida B Wells Drive, Chicago, IL 60605 → 24, East Ida B. Wells Drive, Printer's Row, Loop, Chicago, South Chicago Townshi",
+    "source": "firecrawl+nominatim"
+  },
+  "hampton inn chicago downtown west loop": {
+    "lat": 41.8836291,
+    "lon": -87.643003,
+    "display_name": "116 North Jefferson Street, Chicago, IL → Hampton Inn Chicago West Loop Fulton Market Area, 116, North Jefferson Street, W",
+    "source": "firecrawl+nominatim"
+  },
+  "hampton inn homewood suites": {
+    "lat": 41.8952518,
+    "lon": -87.6229806,
+    "display_name": "160 E. Huron St, Chicago, IL → Hampton Inn & Suites Chicago Downtown/Magnificent Mile, 160, East Huron Street, ",
+    "source": "firecrawl+nominatim"
+  },
+  "homewood suites hilton garden inn": {
+    "lat": 41.8693597,
+    "lon": -87.6255929,
+    "display_name": "59 E 11th Street, Chicago, IL → 59, East 11th Street, Dearborn Park, Loop, Chicago, South Chicago Township, Cook",
+    "source": "firecrawl+nominatim"
+  },
+  "homewood suites by hilton chicago downtown west loop": {
+    "lat": 41.8849372,
+    "lon": -87.6427704,
+    "display_name": "108 - 118 N Jefferson St Chicago, IL 60661 → North Jefferson Street, Fulton River District, West Loop, Near West Side, Chicag",
+    "source": "firecrawl+nominatim"
+  },
+  "hotel cass": {
+    "lat": 41.8937434,
+    "lon": -87.6270864,
+    "display_name": "640 N. Wabash Ave., Chicago, IL 60611 → Holiday Inn Express Chicago - Magnificent Mile, 640, North Wabash Avenue, River ",
+    "source": "firecrawl+nominatim"
+  },
+  "hyatt centric mag mile": {
+    "lat": 41.8202638,
+    "lon": -87.7095369,
+    "display_name": "633 N. St, Chicago, IL → North Street, Corwith, Brighton Park, Chicago, Lake Township, Cook County, Illin",
+    "source": "firecrawl+nominatim"
+  },
+  "l7 by lotte": {
+    "lat": 41.8864913,
+    "lon": -87.6260067,
+    "display_name": "225 N Wabash Ave, Chicago, IL 60601 → Hotel Monaco, 225, North Wabash Avenue, Theatre District, Loop, Chicago, South C",
+    "source": "firecrawl+nominatim"
+  },
+  "level old town": {
+    "lat": 41.9035671,
+    "lon": -87.6350261,
+    "display_name": "1140 North Wells St., Chicago, IL 60610 → Old Town Park I, 1140, North Wells Street, River North, Near North Side, Chicago",
+    "source": "firecrawl+nominatim"
+  },
+  "level river north": {
+    "lat": 41.8913106,
+    "lon": -87.6378557,
+    "display_name": "369 W Grand Avenue, Chicago, IL 60654 → 369 Grand, 369, West Grand Avenue, River North, Near North Side, Chicago, North ",
+    "source": "firecrawl+nominatim"
+  },
+  "londonhouse": {
+    "lat": 41.8879709,
+    "lon": -87.625064,
+    "display_name": "360 North Michigan Avenue, Chicago, IL → London Guarantee Building, 360, North Michigan Avenue, Theatre District, Loop, C",
+    "source": "firecrawl+nominatim"
+  },
+  "lyric opera of chicago": {
+    "lat": 41.8815652,
+    "lon": -87.6375249,
+    "display_name": "10 S. Wacker Drive, Chicago, IL → 10, South Wacker Drive, Financial District, Loop, Chicago, South Chicago Townshi",
+    "source": "firecrawl+nominatim"
+  },
+  "millennium hall": {
+    "lat": 41.8826848,
+    "lon": -87.6235979,
+    "display_name": "11 N. Michigan Ave., Chicago IL 60602 → The Park Grill, 11, North Michigan Avenue, Jewelers Row, Loop, Chicago, South Ch",
+    "source": "firecrawl+nominatim"
+  },
+  "mindworks: the science of thinking": {
+    "lat": 41.8785605,
+    "lon": -87.6250486,
+    "display_name": "224 S. Michigan Ave., Chicago IL → Goettsch Partners, 224, South Michigan Avenue, Jewelers Row, Loop, Chicago, Sout",
+    "source": "firecrawl+nominatim"
+  },
+  "nancy's pizza west loop": {
+    "lat": 41.8456025,
+    "lon": -87.6339433,
+    "display_name": "252 w 26th st Chicago IL → Ricobene's, 252, West 26th Street, Armour Square, Chicago, South Chicago Townshi",
+    "source": "firecrawl+nominatim"
+  },
+  "oak street district": {
+    "lat": 41.9005112,
+    "lon": -87.626725,
+    "display_name": "41 E Oak St, Chicago, IL 60611 → 41, East Oak Street, Gold Coast, Near North Side, Chicago, North Chicago Townshi",
+    "source": "firecrawl+nominatim"
+  },
+  "osteria del pastaio": {
+    "lat": 41.8978294,
+    "lon": -87.6252295,
+    "display_name": "111 E Chestnut St. Chicago, IL 60611 → Elysées Condominiums, 111, East Chestnut Street, Streeterville, Gold Coast, Near",
+    "source": "firecrawl+nominatim"
+  },
+  "pb&j: pizza, beer and jukebox": {
+    "lat": 41.8859157,
+    "lon": -87.6496107,
+    "display_name": "205 N Peoria St, Chicago, IL → PB&J, 205, North Peoria Street, Fulton Market District, West Loop, Near West Sid",
+    "source": "firecrawl+nominatim"
+  },
+  "robert's pizza & dough company": {
+    "lat": 41.8906336,
+    "lon": -87.617051,
+    "display_name": "465 N. McClurg Ct, Chicago, IL → Robert's Pizza Company, 465, North McClurg Court, Streeterville, Near North Side",
+    "source": "firecrawl+nominatim"
+  },
+  "roll up": {
+    "lat": 41.8711428,
+    "lon": -87.6247298,
+    "display_name": "820 S Michigan Ave Chicago, IL 60605 → Johnson Publishing Company Building, 820, South Michigan Avenue, Printer's Row, ",
+    "source": "firecrawl+nominatim"
+  },
+  "saks 5th ave.": {
+    "lat": 41.8953364,
+    "lon": -87.6249417,
+    "display_name": "700 N Michigan Ave, Chicago, IL 60611 → Chicago Place, 700, North Michigan Avenue, Magnificent Mile, Near North Side, Ch",
+    "source": "firecrawl+nominatim"
+  },
+  "selva": {
+    "lat": 41.8085077,
+    "lon": -87.6664057,
+    "display_name": "1607 W 47th St, Chicago, IL 60609 → 1607, West 47th Street, Back of the Yards, New City, Chicago, Lake Township, Coo",
+    "source": "firecrawl+nominatim"
+  },
+  "soldier field tour": {
+    "lat": 41.8783735,
+    "lon": -87.630203,
+    "display_name": "230 ... Chicago, IL 60613 → DEA Chicago Field Office, 230, South Dearborn Street, Financial District, Loop, ",
+    "source": "firecrawl+nominatim"
+  },
+  "sports illustrated resorts": {
+    "lat": 41.8861041,
+    "lon": -87.6260294,
+    "display_name": "203 North Wabash Avenue, Chicago, IL → Virgin Hotels Chicago, 203, North Wabash Avenue, Theatre District, Loop, Chicago",
+    "source": "firecrawl+nominatim"
+  },
+  "starbucks reserve roastery": {
+    "lat": 41.8939214,
+    "lon": -87.6246408,
+    "display_name": "646 N. Michigan Ave, Chicago, IL → Starbucks Reserve, 646, North Michigan Avenue, Magnificent Mile, Near North Side",
+    "source": "firecrawl+nominatim"
+  },
+  "studio w.i.p.": {
+    "lat": 41.9689851,
+    "lon": -87.6564866,
+    "display_name": "1047 w. Lawrence Ave. Chicago, IL → 1047, West Lawrence Avenue, Uptown Square, Uptown, Chicago, Lake View Township, ",
+    "source": "firecrawl+nominatim"
+  },
+  "the blake": {
+    "lat": 41.87514,
+    "lon": -87.6295038,
+    "display_name": "500 S Dearborn St, Chicago, IL 60605 → Wyndham Blake Hotel, 500, South Dearborn Street, Printer's Row, Loop, Chicago, S",
+    "source": "firecrawl+nominatim"
+  },
+  "the embassy public house": {
+    "lat": 41.8690927,
+    "lon": -87.6630218,
+    "display_name": "1435 W. Taylor St.Chicago, IL 60607 → 1435, West Taylor Street, Roosevelt Square, Little Italy, Near West Side, Chicag",
+    "source": "firecrawl+nominatim"
+  },
+  "the evie": {
+    "lat": 41.8919541,
+    "lon": -87.6239805,
+    "display_name": "537 N. Michigan Ave Chicago, IL 60611 → 537, North Michigan Avenue, Magnificent Mile, Near North Side, Chicago, North Ch",
+    "source": "firecrawl+nominatim"
+  },
+  "the hoxton, chicago": {
+    "lat": 41.8858848,
+    "lon": -87.6491365,
+    "display_name": "200 N. Green St., Chicago IL → Hoxton Hotel, 200, North Green Street, Fulton Market District, West Loop, Near W",
+    "source": "firecrawl+nominatim"
+  },
+  "the old post office": {
+    "lat": 41.8759856,
+    "lon": -87.6387645,
+    "display_name": "433 W. Van Buren Street, Chicago, IL → Walgreens, 433, West Van Buren Street, Near West Side, Chicago, West Chicago Tow",
+    "source": "firecrawl+nominatim"
+  },
+  "the publishing house bed and breakfast": {
+    "lat": 41.8831559,
+    "lon": -87.6557867,
+    "display_name": "108 N May St. Chicago, Il → The Publishing House Bed & Breakfast, 108, North May Street, Restaurant Row, Wes",
+    "source": "firecrawl+nominatim"
+  },
+  "theater of the mind": {
+    "lat": 41.887903,
+    "lon": -87.6323945,
+    "display_name": "333 N. LASALLE STREET, Chicago, IL → 333, North LaSalle Street, River North, Near North Side, Chicago, North Chicago ",
+    "source": "firecrawl+nominatim"
+  },
+  "trump int'l": {
+    "lat": 41.8888632,
+    "lon": -87.6264748,
+    "display_name": "401 N. Wabash Chicago, IL 60611 → Trump International Hotel & Tower Chicago, 401, North Wabash Avenue, River North",
+    "source": "firecrawl+nominatim"
+  },
+  "voco": {
+    "lat": 41.8881823,
+    "lon": -87.6375946,
+    "display_name": "350 W. Wolf Point Plaza, Chicago, IL → Cityscape Bar, 350, West Wolf Point Plaza, River North, Near North Side, Chicago",
+    "source": "firecrawl+nominatim"
+  },
+  "vosges haut-chocolat": {
+    "lat": 41.9353487,
+    "lon": -87.6860936,
+    "display_name": "2950 North Oakley Ave. Chicago, IL 60618 → 2950-2952, North Oakley Avenue, Bricktown, North Center, Chicago, Lake View Town",
+    "source": "firecrawl+nominatim"
+  },
+  "willie dixon blues heaven foundation": {
+    "lat": 41.8536162,
+    "lon": -87.6240618,
+    "display_name": "2120 S Michigan Ave, Chicago, IL 60616 → Willie Dixon's Blues Heaven Foundation, 2120, South Michigan Avenue, Motor Row, ",
+    "source": "firecrawl+nominatim"
+  },
+  "big bus tours stop 10: 360 chicago": {
+    "lat": 41.8984567,
+    "lon": -87.6248759,
+    "display_name": "150, East Chestnut Street, Streeterville, Gold Coast, Near North Side, Chicago, North Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 11: river north": {
+    "lat": 41.8938013,
+    "lon": -87.6312915,
+    "display_name": "614, North Clark Street, River North, Near North Side, Chicago, North Chicago Township, Cook County, Illinois, 60654, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 1: chicago riverwalk": {
+    "lat": 41.8879811,
+    "lon": -87.6206891,
+    "display_name": "East Upper Wacker Drive, Lakeshore East, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 2: skydeck chicago & willis tower": {
+    "lat": 41.8780123,
+    "lon": -87.6358539,
+    "display_name": "319, West Jackson Boulevard, Financial District, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60661, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 4: hilton chicago & grant park": {
+    "lat": 41.8714904,
+    "lon": -87.6247391,
+    "display_name": "Essex on the Park, 800, South Michigan Avenue, Printer's Row, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60605, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 5: adler planetarium": {
+    "lat": 41.866028,
+    "lon": -87.613558,
+    "display_name": "500, East Solidarity Drive, Near South Side, Chicago, South Chicago Township, Cook County, Illinois, 60605, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 6: museum campus": {
+    "lat": 41.8623356,
+    "lon": -87.6176477,
+    "display_name": "Soldier Field, 425, East McFetridge Drive, Central Station, South Loop, Near South Side, Chicago, South Chicago Township, Cook County, Illinois, 60605, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 7: sheraton grand chicago": {
+    "lat": 41.8891676,
+    "lon": -87.6202843,
+    "display_name": "441, North Columbus Drive, Near North Side, Chicago, North Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 8: navy pier": {
+    "lat": 41.8917999,
+    "lon": -87.6041447,
+    "display_name": "Navy Pier, 600, East Grand Avenue, Near North Side, Chicago, North Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "bigbus+nominatim"
+  },
+  "big bus tours stop 9: water tower & the magnificent mile": {
+    "lat": 41.8973868,
+    "lon": -87.6234661,
+    "display_name": "Water Works, Chicago Public Library, 163, East Pearson Street, Streeterville, Gold Coast, Near North Side, Chicago, North Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "bigbus+nominatim"
+  },
+  "chicago style by katie lukes": {
+    "lat": 41.8996659,
+    "lon": -87.6256206,
+    "display_name": "900 North Michigan, 900, North Michigan Avenue, Gold Coast, Near North Side, Chicago, North Chicago Township, Cook County, Illinois, 60611, United States",
+    "source": "known_address+nominatim"
+  },
+  "goodman theater center": {
+    "lat": 41.8849317,
+    "lon": -87.6299331,
+    "display_name": "Albert Ivar Goodman Theatre, 170, North Dearborn Street, Theatre District, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60601, United States",
+    "source": "known_address+nominatim"
+  },
+  "griffin museum of science & industry": {
+    "lat": 41.7911839,
+    "lon": -87.5799813,
+    "display_name": "South DuSable Lake Shore Drive, Hyde Park, Chicago, Hyde Park Township, Cook County, Illinois, 60615, United States",
+    "source": "known_address+nominatim"
+  },
+  "lizzie mcneil's": {
+    "lat": 41.8865558,
+    "lon": -87.6250085,
+    "display_name": "Pendry Chicago, 230, North Michigan Avenue, Theatre District, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60601, United States",
+    "source": "known_address+nominatim"
+  },
+  "origin of great chicago fire of 1871": {
+    "lat": 41.8694736,
+    "lon": -87.6419112,
+    "display_name": "Chicago Fire Academy, 558, West DeKoven Street, Near West Side, Chicago, West Chicago Township, Cook County, Illinois, 60607, United States",
+    "source": "known_address+nominatim"
+  },
+  "route 66 league": {
+    "lat": 41.8838628,
+    "lon": -87.6248023,
+    "display_name": "Chicago Cultural Center, 78, East Washington Street, Jewelers Row, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60602, United States",
+    "source": "known_address+nominatim"
+  },
+  "route 66 in illinois": {
+    "lat": 41.8838628,
+    "lon": -87.6248023,
+    "display_name": "Chicago Cultural Center, 78, East Washington Street, Jewelers Row, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60602, United States",
+    "source": "known_address+nominatim"
+  },
+  "big bus tours stop 3: millennium park & the art institute of chicago": {
+    "lat": 41.8814522,
+    "lon": -87.6245637,
+    "display_name": "17, South Michigan Avenue, Jewelers Row, Loop, Chicago, South Chicago Township, Cook County, Illinois, 60603, United States",
+    "source": "bigbus+nominatim"
+  },
+  "raising cane's chicken fingers - loyola": {
+    "lat": 41.9986503,
+    "lon": -87.6602888,
+    "display_name": "6554, North Sheridan Road, Rogers Park, Chicago, Rogers Park Township, Cook County, Illinois, 60660, United States",
+    "source": "known_address+nominatim"
+  },
+  "raising cane's chicken fingers - lincoln park": {
+    "lat": 41.9251004,
+    "lon": -87.6485641,
+    "display_name": "Raising Cane's, 2376, North Lincoln Avenue, Park West, Lincoln Park, Chicago, North Chicago Township, Cook County, Illinois, 60614, United States",
+    "source": "known_address+nominatim"
+  },
+  "raising cane's chicken fingers - south loop": {
+    "lat": 41.8700036,
+    "lon": -87.6419271,
+    "display_name": "Raising Cane's, 564, West Taylor Street, Near West Side, Chicago, West Chicago Township, Cook County, Illinois, 60607, United States",
+    "source": "known_address+nominatim"
+  },
+  "raising cane's chicken fingers - west loop": {
+    "lat": 41.8847,
+    "lon": -87.6483994,
+    "display_name": "Raising Cane's, 820, West Randolph Street, Restaurant Row, West Loop, Near West Side, Chicago, West Chicago Township, Cook County, Illinois, 60661, United States",
+    "source": "known_address+nominatim"
+  },
+  "raising cane's chicken fingers - wrigleyville": {
+    "lat": 41.9491491,
+    "lon": -87.6583667,
+    "display_name": "3700, North Clark Street, Wrigleyville, Lake View, Chicago, Lake View Township, Cook County, Illinois, 60613, United States",
+    "source": "known_address+nominatim"
   }
 }
