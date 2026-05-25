@@ -13,3 +13,17 @@ __pycache__/
 
 # OS junk
 .DS_Store
+
+# Office lockfiles
+~$*
+
+# LaTeX intermediates (keep main.tex and the compiled PDF only)
+docs/paper/*.aux
+docs/paper/*.fdb_latexmk
+docs/paper/*.fls
+docs/paper/*.lof
+docs/paper/*.log
+docs/paper/*.lot
+docs/paper/*.out
+docs/paper/*.toc
+docs/paper/*.synctex.gz
