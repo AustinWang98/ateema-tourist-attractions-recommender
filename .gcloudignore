@@ -11,7 +11,6 @@ __pycache__/
 .firecrawl/
 data/enrich_cache.sqlite
 data/firecrawl_cache/
-data/location_images/
 data/location_videos/
 data/llm_cache.sqlite
 data/missing_media_backfill.log

@@ -923,7 +923,16 @@ def _media_item_url(item: dict) -> Optional[str]:
     f = item.get("file")
     if f:
         if item.get("type") == "video":
+            if not (Path(CARD_VIDEOS_DIR) / str(f)).exists():
+                url = item.get("url")
+                if url:
+                    host = (urlparse(str(url)).hostname or "").lower()
+                    if "youtube" in host or host == "youtu.be" or host == "media.mapme.com":
+                        return str(url)
+                return None
             return f"/card-videos/{f}"
+        if not (Path(CARD_IMAGES_DIR) / str(f)).exists():
+            return None
         return f"/cards/{f}"
     if item.get("type") == "video":
         url = item.get("url")
