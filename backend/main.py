@@ -17,6 +17,7 @@ import logging
 import json
 import os
 from datetime import datetime, timezone
+import hashlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote_plus
@@ -902,6 +903,12 @@ CHICAGODOES_HOME = "https://www.chicagodoes.com/"
 # that matches our warehouse location_id exactly).
 MAPME_LOCATION_BASE = "https://viewer.mapme.com/chicagodoesinteractivevideomaps/location/"
 
+# Runtime media policy: prefer exact/high-trust sources. Yelp/TripAdvisor/
+# Openverse are only allowed as a last resort for cards that would otherwise
+# have no media, and de-duped visually before display.
+SAFE_MEDIA_SOURCES = {"chicagodoes", "mapme", "official", "wikipedia", "wikimedia", "youtube"}
+FALLBACK_MEDIA_SOURCES = {"yelp", "tripadvisor", "openverse"}
+
 
 def _looks_like_uuid(value: str) -> bool:
     parts = value.split("-")
@@ -916,9 +923,11 @@ def _chicagodoes_url(location_id: str) -> Optional[str]:
     return MAPME_LOCATION_BASE + lid if _looks_like_uuid(lid) else None
 
 
-def _media_item_url(item: dict) -> Optional[str]:
+def _media_item_url(item: dict, *, allow_fallback: bool = False) -> Optional[str]:
     """Resolve a stored media item to a browser-loadable URL (local files only for images)."""
     if not item:
+        return None
+    if not _is_safe_media_item(item, allow_fallback=allow_fallback):
         return None
     f = item.get("file")
     if f:
@@ -943,6 +952,114 @@ def _media_item_url(item: dict) -> Optional[str]:
     return None
 
 
+def _normalized_media_source(source: Any) -> str:
+    s = str(source or "").strip().lower()
+    if s in {"wiki", "wikimedia commons"}:
+        return "wikipedia"
+    if s in {"mapme", "media.mapme.com"}:
+        return "chicagodoes"
+    return s
+
+
+def _is_safe_media_item(item: dict, *, allow_fallback: bool = False) -> bool:
+    """Source allowlist for displayed card media.
+
+    Primary media is limited to exact/high-trust sources. Fallback media is
+    allowed only when a card would otherwise have no media at all.
+    """
+    source = _normalized_media_source(item.get("source"))
+    if source in FALLBACK_MEDIA_SOURCES:
+        return bool(allow_fallback)
+    if source in {"web", "llm"}:
+        return False
+    if source in SAFE_MEDIA_SOURCES:
+        return True
+
+    url = str(item.get("url") or "").strip()
+    host = (urlparse(url).hostname or "").lower()
+    if host == "media.mapme.com" or host.endswith(".wikimedia.org"):
+        return True
+    if "youtube" in host or host == "youtu.be" or host == "img.youtube.com":
+        return True
+    return False
+
+
+def _fallback_media_priority(item: dict) -> int:
+    source = _normalized_media_source(item.get("source"))
+    # Yelp/TripAdvisor are venue pages; Openverse is broad search and is the
+    # riskiest fallback, so it is used last.
+    return {"yelp": 0, "tripadvisor": 1, "openverse": 2}.get(source, 9)
+
+
+def _stored_media_path(item: dict) -> Optional[Path]:
+    f = str(item.get("file") or "").strip()
+    if not f:
+        return None
+    base = CARD_VIDEOS_DIR if item.get("type") == "video" else CARD_IMAGES_DIR
+    path = Path(base) / f
+    return path if path.exists() else None
+
+
+_MEDIA_HASH_CACHE: Dict[str, str] = {}
+
+
+def _image_visual_hash(path: Path) -> Optional[str]:
+    """Small perceptual hash for catching re-encoded duplicate card photos."""
+    cache_key = f"ahash::{path}"
+    if cache_key in _MEDIA_HASH_CACHE:
+        return _MEDIA_HASH_CACHE[cache_key]
+    try:
+        from PIL import Image
+
+        with Image.open(path) as img:
+            gray = img.convert("L").resize((8, 8), Image.Resampling.LANCZOS)
+            pixels = list(gray.getdata())
+    except Exception:  # noqa: BLE001
+        return None
+    avg = sum(pixels) / len(pixels)
+    bits = 0
+    for p in pixels:
+        bits = (bits << 1) | int(p >= avg)
+    digest = f"{bits:016x}"
+    _MEDIA_HASH_CACHE[cache_key] = digest
+    return digest
+
+
+def _hamming_hex(a: str, b: str) -> int:
+    try:
+        return (int(a, 16) ^ int(b, 16)).bit_count()
+    except ValueError:
+        return 65
+
+
+def _seen_has_similar_visual(seen: set[str], dedupe_key: str) -> bool:
+    prefix = "image::ahash::"
+    if not dedupe_key.startswith(prefix):
+        return False
+    digest = dedupe_key.removeprefix(prefix)
+    for key in seen:
+        if key.startswith(prefix) and _hamming_hex(digest, key.removeprefix(prefix)) <= 6:
+            return True
+    return False
+
+
+def _media_content_key(item: dict, url: str) -> str:
+    """Stable de-dupe key, preferring local file content over file names."""
+    path = _stored_media_path(item)
+    if path:
+        if item.get("type") != "video":
+            visual = _image_visual_hash(path)
+            if visual:
+                return f"image::ahash::{visual}"
+        cache_key = str(path)
+        digest = _MEDIA_HASH_CACHE.get(cache_key)
+        if not digest:
+            digest = hashlib.sha1(path.read_bytes()).hexdigest()
+            _MEDIA_HASH_CACHE[cache_key] = digest
+        return f"{item.get('type') or 'image'}::sha1::{digest}"
+    return _media_item_key(str(item.get("type") or "image"), url)
+
+
 def _media_item_key(media_type: str, url: str) -> str:
     clean = str(url or "").strip()
     parsed = urlparse(clean)
@@ -959,11 +1076,12 @@ def _append_unique_media(
     url: str,
     source: Optional[str] = None,
     attribution: Optional[str] = None,
+    key: Optional[str] = None,
 ) -> None:
-    key = _media_item_key(media_type, url)
-    if key in seen:
+    dedupe_key = key or _media_item_key(media_type, url)
+    if dedupe_key in seen or _seen_has_similar_visual(seen, dedupe_key):
         return
-    seen.add(key)
+    seen.add(dedupe_key)
     media_items.append(CardMediaItem(
         type=media_type,
         url=url,
@@ -987,49 +1105,68 @@ def _card_media_from_store(rec: Optional[dict]) -> Dict[str, Any]:
 
     media_items: List[CardMediaItem] = []
     seen_media: set[str] = set()
-    for raw in rec.get("media_items") or []:
-        url = _media_item_url(raw)
+
+    raw_items = list(rec.get("media_items") or [])
+
+    def append_from_raw(raw: dict, *, allow_fallback: bool) -> None:
+        url = _media_item_url(raw, allow_fallback=allow_fallback)
         if not url:
-            continue
+            return
         _append_unique_media(
             media_items,
             seen_media,
             media_type=str(raw.get("type") or "image"),
             url=url,
-            source=raw.get("source"),
+            source=_normalized_media_source(raw.get("source")) or raw.get("source"),
             attribution=raw.get("attribution"),
+            key=_media_content_key(raw, url),
         )
+
+    for raw in raw_items:
+        append_from_raw(raw, allow_fallback=False)
+
+    if not media_items:
+        for raw in sorted(raw_items, key=_fallback_media_priority):
+            append_from_raw(raw, allow_fallback=True)
 
     if not media_items:
         img_file = rec.get("image_file")
         vid_file = rec.get("video_file")
         attr = rec.get("image_attribution")
-        if vid_file:
+        vid_source = rec.get("video_source")
+        img_source = rec.get("image_source")
+        vid_raw = {"type": "video", "file": vid_file, "source": vid_source}
+        vid_url = _media_item_url(vid_raw) if vid_file else None
+        if vid_url:
             _append_unique_media(
                 media_items,
                 seen_media,
                 media_type="video",
-                url=f"/card-videos/{vid_file}",
-                source=rec.get("video_source"),
+                url=vid_url,
+                source=vid_source,
                 attribution=attr,
+                key=_media_content_key(vid_raw, vid_url),
             )
-        elif rec.get("video_url"):
+        elif rec.get("video_url") and _is_safe_media_item({"type": "video", "url": rec.get("video_url"), "source": vid_source}):
             _append_unique_media(
                 media_items,
                 seen_media,
                 media_type="video",
                 url=str(rec["video_url"]),
-                source=rec.get("video_source"),
+                source=vid_source,
                 attribution=attr,
             )
-        if img_file:
+        img_raw = {"type": "image", "file": img_file, "source": img_source}
+        img_url = _media_item_url(img_raw) if img_file else None
+        if img_url:
             _append_unique_media(
                 media_items,
                 seen_media,
                 media_type="image",
-                url=f"/cards/{img_file}",
-                source=rec.get("image_source"),
+                url=img_url,
+                source=img_source,
                 attribution=attr,
+                key=_media_content_key(img_raw, img_url),
             )
 
     first_image = next((m for m in media_items if m.type == "image"), None)
@@ -1044,7 +1181,9 @@ def _card_media_from_store(rec: Optional[dict]) -> Dict[str, Any]:
         "image_attribution": attr,
         "video_url": first_video.url if first_video else None,
         "video_attribution": attr if first_video else None,
-        "media_source": rec.get("media_source") or rec.get("image_source"),
+        "media_source": (
+            first_image.source if first_image else first_video.source if first_video else None
+        ),
         "media_items": media_items,
     }
 

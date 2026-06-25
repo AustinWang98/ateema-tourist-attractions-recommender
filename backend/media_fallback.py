@@ -342,8 +342,6 @@ def iter_strict_extra_image_candidates(
             yield from offer(img, "official")
 
     searches = [
-        (f'"{name}" Chicago site:yelp.com/biz', "yelp", "yelp.com/biz"),
-        (f'"{name}" Chicago site:tripadvisor.com', "tripadvisor", "tripadvisor.com"),
         (f'"{name}" Chicago official website', "official", ""),
     ]
     for query, source, required_host_part in searches:
@@ -394,12 +392,6 @@ def iter_fallback_image_candidates(
     if commons:
         yield from offer(commons, "wikipedia")
 
-    # Openverse
-    for q in _openverse_queries(name):
-        ov = _openverse_photo(q)
-        if ov:
-            yield from offer(ov, "openverse")
-
     site = (official_site or "").strip()
     if not site:
         wiki = _wikipedia(name)
@@ -414,23 +406,40 @@ def iter_fallback_image_candidates(
             yield from offer(og, "official")
 
     if use_firecrawl:
-        for img in _yelp_images(name, cache_dir)[:5]:
-            yield from offer(img, "yelp")
-        for img in _tripadvisor_images(name, cache_dir)[:3]:
-            yield from offer(img, "tripadvisor")
         for query in (f"{name} Chicago", f"{name} Chicago official website"):
             text = _firecrawl_search_text(query, cache_dir)
             for page_url in _firecrawl_result_urls(text)[:4]:
-                if "yelp.com" in page_url:
+                low = page_url.lower()
+                if any(blocked in low for blocked in (
+                    "yelp.com",
+                    "tripadvisor.com",
+                    "openverse.org",
+                    "facebook.com",
+                    "instagram.com",
+                    "twitter.com",
+                    "x.com",
+                )):
                     continue
                 for img in _image_urls_from_scrape(page_url, cache_dir)[:2]:
                     yield from offer(img, "official")
-        for img in _web_search_images(name, cache_dir)[:6]:
-            yield from offer(img, "web")
+
+        # Secondary fallbacks. These are intentionally after ChicagoDoes,
+        # Wikipedia/Wikimedia, and official-site candidates and should be used
+        # only to prevent a card from being blank.
+        for img in _yelp_images(name, cache_dir)[:3]:
+            yield from offer(img, "yelp")
+        for img in _tripadvisor_images(name, cache_dir)[:2]:
+            yield from offer(img, "tripadvisor")
+        for q in _openverse_queries(name):
+            ov = _openverse_photo(q)
+            if ov:
+                yield from offer(ov, "openverse")
 
     if llm is not None and getattr(llm, "enabled", False):
         for url, src in llm.find_location_photo_candidates(name):
-            yield from offer(url, src or "llm")
+            source = (src or "").strip().lower()
+            if source in {"official", "wikipedia", "wikimedia", "youtube", "chicagodoes"}:
+                yield from offer(url, source)
 
     cache_key = enricher.cache.make_key("card_enrich_v5", name)
     enricher.cache.put(cache_key, json.dumps({"image_url": None, "image_source": None}))

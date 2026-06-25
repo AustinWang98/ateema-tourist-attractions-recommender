@@ -11,3 +11,4 @@ google-cloud-bigquery>=3.20
 google-cloud-bigquery-storage>=2.24
 db-dtypes>=1.2
 pyarrow>=15
+Pillow>=10,<12
