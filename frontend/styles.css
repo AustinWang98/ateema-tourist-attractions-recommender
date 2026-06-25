@@ -73,6 +73,9 @@ textarea {
 }
 
 button {
+  appearance: none;
+  background: none;
+  border: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -1041,14 +1044,26 @@ a:focus-visible {
 
 .hero__actions .btn {
   align-items: center;
+  border-width: 1px;
+  box-sizing: border-box;
   flex: 1 1 0;
   flex-direction: column;
   gap: 2px;
+  height: 58px;
+  line-height: 1.1;
   min-height: 58px;
   min-width: min(280px, 100%);
   padding: 12px 24px;
   position: relative;
   text-align: center;
+}
+
+.hero__actions .btn,
+.hero__actions .btn:hover,
+.hero__actions .btn:focus,
+.hero__actions .btn:active {
+  font-size: 0.92rem;
+  font-weight: 850;
 }
 
 .hero__actions .btn::after {
@@ -1073,6 +1088,15 @@ a:focus-visible {
 }
 
 .btn__sub {
+  font-size: 1.02rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.hero__actions .btn .btn__sub,
+.hero__actions .btn:hover .btn__sub,
+.hero__actions .btn:focus .btn__sub,
+.hero__actions .btn:active .btn__sub {
   font-size: 1.02rem;
   font-weight: 900;
   line-height: 1.1;
