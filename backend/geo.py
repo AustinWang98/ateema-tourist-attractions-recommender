@@ -24,21 +24,13 @@ GeoIndex
     Wraps the locations DataFrame and exposes fast coord lookup.
     Returns (None, None) for ids we have no coords for; callers must
     degrade gracefully (no map, no travel chips) rather than crashing.
-
-order_stops_by_route(stops, geo)
-    Greedy nearest-neighbour ordering: start at the highest-scored
-    stop, then always visit the closest unvisited stop next. For 2-6
-    stops per day this is near-optimal and 100× faster than full TSP.
-
-route_legs(stops, geo)
-    For an ordered list of stops, return [{from, to, km, mode, minutes}].
 """
 from __future__ import annotations
 
 import logging
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 import pandas as pd
 
@@ -142,109 +134,3 @@ class GeoIndex:
     @property
     def size(self) -> int:
         return len(self._by_id)
-
-
-# --------------------------------------------------------------------------- #
-def order_stops_by_route(
-    stops: List[dict],
-    geo: GeoIndex,
-) -> List[dict]:
-    """Reorder stops within a single day using greedy nearest-neighbour.
-
-    We honour the slot bucket order (morning < afternoon < evening) as a
-    hard prior, then within each slot pick the nearest unvisited stop
-    next. The starting stop in each slot is the highest-scored stop
-    that landed there (already true after the caller's sort).
-
-    Inputs: list of stop dicts that already have location_id + slot.
-    Output: same list, reordered. Stops without coords are placed
-    last within their slot so they don't break the chain.
-    """
-    if not stops:
-        return stops
-
-    slot_priority = {"morning": 0, "afternoon": 1, "evening": 2}
-
-    # Group by slot preserving original (score) order
-    by_slot: Dict[str, List[dict]] = {}
-    for s in stops:
-        by_slot.setdefault(s.get("slot", "afternoon"), []).append(s)
-
-    ordered: List[dict] = []
-    last_coord: Optional[Coord] = None
-
-    for slot in sorted(by_slot.keys(), key=lambda x: slot_priority.get(x, 99)):
-        bucket = list(by_slot[slot])
-        has_coord = [s for s in bucket if geo.has(s["location_id"])]
-        no_coord = [s for s in bucket if not geo.has(s["location_id"])]
-
-        # Start the slot from either the previous slot's last coord
-        # (for cross-slot continuity) or the highest-scored stop.
-        chain: List[dict] = []
-        remaining = list(has_coord)
-        if remaining:
-            if last_coord is None:
-                # take the first (highest score) as anchor
-                anchor = remaining.pop(0)
-            else:
-                # start with whichever remaining stop is nearest to last_coord
-                anchor = min(remaining, key=lambda s: _km(geo, last_coord, s))
-                remaining.remove(anchor)
-            chain.append(anchor)
-            last_coord = geo.get(anchor["location_id"])
-
-            while remaining:
-                nxt = min(remaining, key=lambda s: _km(geo, last_coord, s))
-                remaining.remove(nxt)
-                chain.append(nxt)
-                last_coord = geo.get(nxt["location_id"])
-
-        ordered.extend(chain)
-        ordered.extend(no_coord)   # tail any geo-missing stops within slot
-
-    return ordered
-
-
-def _km(geo: GeoIndex, anchor: Optional[Coord], stop: dict) -> float:
-    c = geo.get(stop["location_id"])
-    if c is None or anchor is None:
-        return 9999.0
-    return haversine_km(anchor.lat, anchor.lon, c.lat, c.lon)
-
-
-def route_legs(stops: List[dict], geo: GeoIndex) -> List[dict]:
-    """Build leg-by-leg travel info for the ordered stops.
-
-    Each leg connects stop[i] -> stop[i+1] and gets:
-        from_id, to_id, from_name, to_name, km, mode, minutes
-    Stops without coords break the chain; those legs are emitted with
-    km=None / minutes=None / mode='unknown' so the UI can still show
-    them while flagging the gap.
-    """
-    legs: List[dict] = []
-    for i in range(len(stops) - 1):
-        a, b = stops[i], stops[i + 1]
-        ca, cb = geo.get(a["location_id"]), geo.get(b["location_id"])
-        if ca is None or cb is None or ca.source == "fallback" or cb.source == "fallback":
-            legs.append({
-                "from_id":   a["location_id"],
-                "to_id":     b["location_id"],
-                "from_name": a["location_name"],
-                "to_name":   b["location_name"],
-                "km":        None,
-                "mode":      "unknown",
-                "minutes":   None,
-            })
-            continue
-        km = haversine_km(ca.lat, ca.lon, cb.lat, cb.lon)
-        mode = choose_mode(km)
-        legs.append({
-            "from_id":   a["location_id"],
-            "to_id":     b["location_id"],
-            "from_name": a["location_name"],
-            "to_name":   b["location_name"],
-            "km":        round(km, 2),
-            "mode":      mode,
-            "minutes":   travel_minutes(km, mode),
-        })
-    return legs

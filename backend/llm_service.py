@@ -9,7 +9,8 @@ Capabilities
 
 All four methods share a single `_chat_json` / `_chat_text` core that:
 
-* Routes through the OpenAI-compatible client (default: local Ollama).
+* Routes through the OpenAI-compatible client (default: OpenAI cloud;
+  set OPENAI_BASE_URL=ollama for free local inference).
 * Falls back to deterministic templates when the SDK or key is absent.
 * Caches every successful response in a SQLite file keyed by
   (model, system_prompt, user_prompt, response_format) so live demos
@@ -30,7 +31,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -91,10 +92,16 @@ SYSTEM_PROMPT = (
     "Never invent specific addresses, prices, or hours."
 )
 
-# Default: local Ollama (OpenAI-compatible). Override via .env for OpenAI / Groq / etc.
-DEFAULT_LLM_API_KEY = "ollama"
-DEFAULT_LLM_BASE_URL = "http://localhost:11434/v1"
-DEFAULT_LLM_MODEL = "llama3.1:8b"
+# Default provider: OpenAI cloud. Set OPENAI_API_KEY in .env to enable it.
+# An empty key disables the LLM gracefully (the deterministic scheduler still
+# produces a day plan from the data-ranked Top picks).
+DEFAULT_LLM_API_KEY = ""
+DEFAULT_LLM_MODEL = "gpt-4o-mini"
+# Official OpenAI cloud endpoint. We pass this explicitly so our `OPENAI_BASE_URL`
+# sentinels ("openai"/"ollama") never leak into the SDK (it auto-reads that env var).
+OPENAI_CLOUD_BASE_URL = "https://api.openai.com/v1"
+# Local Ollama endpoint — used only when OPENAI_BASE_URL=ollama (or a localhost URL).
+OLLAMA_BASE_URL = "http://localhost:11434/v1"
 
 
 class LLMService:
@@ -117,17 +124,20 @@ class LLMService:
         if self.api_key:
             try:
                 from openai import OpenAI  # noqa: WPS433
+                # Always pass an explicit base_url. Our `OPENAI_BASE_URL` sentinel
+                # values ("openai"/"ollama") would otherwise be read straight from
+                # the env by the SDK and rejected as malformed URLs.
+                effective_base_url = (self.base_url or OPENAI_CLOUD_BASE_URL).rstrip("/")
                 client_kw: Dict[str, Any] = {
                     "api_key": self.api_key,
                     "timeout": float(os.getenv("LLM_TIMEOUT_SEC", "180")),
+                    "base_url": effective_base_url,
                 }
-                if self.base_url:
-                    client_kw["base_url"] = self.base_url.rstrip("/")
                 self._client = OpenAI(**client_kw)
                 logger.info(
                     "LLMService enabled (model=%s, base_url=%s, cache=%s)",
                     self.model,
-                    self.base_url or "https://api.openai.com/v1",
+                    effective_base_url,
                     self.cache.enabled,
                 )
                 if self.base_url and not _ping_llm_server(self.base_url):
@@ -201,6 +211,99 @@ class LLMService:
             return fb
 
     # ==================================================================== #
+    # 1b) One-line specialty blurb for a recommendation card
+    # ==================================================================== #
+    def summarize_location(
+        self,
+        location_name: str,
+        primary_category: Optional[str],
+        categories: Sequence[str],
+    ) -> Dict[str, Any]:
+        """One short sentence on what this place is best known for.
+
+        Used on the recommendation card in place of the system's "why ranked"
+        text. Cached and cheap; falls back to a category sentence with no LLM.
+        """
+        fb = {"blurb": _fallback_blurb(location_name, primary_category, categories),
+              "source": "fallback"}
+        if not self.enabled:
+            return fb
+
+        cat = _clean_category(primary_category, categories) or "spot"
+        clean_cats = [c for c in categories if isinstance(c, str) and c.strip()]
+        prompt = (
+            "You are a Chicago travel writer. In ONE vivid sentence (12-22 words), "
+            "tell a visitor what makes THIS specific Chicago place worth going to — "
+            "its signature dish, exhibit, view, history, or vibe. Be concrete and "
+            "factual using what you know about this real place; if unsure, describe "
+            "it accurately by its category. No marketing fluff, no markdown, no "
+            "hashtags, do not start with the place name. Return STRICT JSON: "
+            '{"blurb": string}.\n\n'
+            f"name: {location_name}\n"
+            f"primary_category: {cat}\n"
+            f"categories: {', '.join(clean_cats) if clean_cats else cat}\n"
+        )
+        try:
+            payload = self._chat_json(prompt, schema_hint="summarize")
+            blurb = str(payload.get("blurb") or "").strip()
+            if not blurb:
+                return fb
+            if len(blurb) > 160:
+                blurb = blurb[:157].rstrip() + "..."
+            return {"blurb": blurb, "source": "llm"}
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("summarize_location failed, falling back: %s", exc)
+            return fb
+
+    # ==================================================================== #
+    # 1c) Build-time photo URL discovery (offline card builder only)
+    # ==================================================================== #
+    def find_location_photo_url(self, location_name: str) -> Dict[str, Any]:
+        """Suggest a direct HTTPS image URL for a Chicago venue (build-time only)."""
+        for url, src in self.find_location_photo_candidates(location_name):
+            return {"image_url": url, "source": src}
+        return {"image_url": None, "source": None}
+
+    def find_location_photo_candidates(
+        self, location_name: str,
+    ) -> List[Tuple[str, str]]:
+        """Return ordered (url, source) photo candidates (build-time only)."""
+        empty: List[Tuple[str, str]] = []
+        if not self.enabled or not (location_name or "").strip():
+            return empty
+        prompt = (
+            "You are helping build a Chicago travel guide. Find up to 3 REAL, working "
+            "direct HTTPS image URLs for this venue. Prefer: Yelp CDN (yelpcdn.com), "
+            "Wikimedia Commons upload.wikimedia.org, the venue's official website, "
+            "or hotel brand press photos. Do NOT invent or guess URLs. Each URL must "
+            "be a direct image link (.jpg/.png/.webp) or a known CDN photo URL. "
+            "Return STRICT JSON: "
+            '{"candidates": [{"image_url": string, "source": "yelp"|"wikipedia"|'
+            '"official"|"other"}]}.\n\n'
+            f"venue: {location_name}\n"
+            f"city: Chicago, Illinois, USA\n"
+        )
+        try:
+            payload = self._chat_json(prompt, schema_hint="photo_candidates", temperature=0.2)
+            out: List[Tuple[str, str]] = []
+            seen: set[str] = set()
+            for row in payload.get("candidates") or []:
+                if not isinstance(row, dict):
+                    continue
+                url = str(row.get("image_url") or "").strip()
+                if not url.lower().startswith(("http://", "https://")) or url in seen:
+                    continue
+                seen.add(url)
+                src = str(row.get("source") or "llm").strip() or "llm"
+                out.append((url, src))
+            return out
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "find_location_photo_candidates failed for %r: %s", location_name, exc,
+            )
+            return empty
+
+    # ==================================================================== #
     # 2) Natural-language intent parser
     # ==================================================================== #
     def parse_intent(
@@ -263,6 +366,8 @@ class LLMService:
         avoid_categories: Sequence[str],
         traveler_type: Optional[str] = None,
         vibe: Optional[str] = None,
+        free_text: Optional[str] = None,
+        planner_note: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Build a multi-day plan using only the provided location_ids."""
         empty = {
@@ -278,8 +383,9 @@ class LLMService:
             return {
                 **empty,
                 "summary": (
-                    "AI itinerary needs an OpenAI API key. "
-                    "Start Ollama (ollama serve) and pull the model to enable day planning."
+                    "AI day planning needs an OpenAI API key. Add OPENAI_API_KEY "
+                    "to your .env and restart the server (a data-only schedule is "
+                    "used in the meantime)."
                 ),
             }
 
@@ -287,35 +393,52 @@ class LLMService:
         avoid_l = [str(c).strip() for c in avoid_categories if c]
         combined_interests = list(dict.fromkeys([*interests, *inferred_interests]))
 
+        free_text_clean = (free_text or "").strip()
+        planner_note_clean = (planner_note or "").strip()
+
         pool = _trim_candidates_for_itinerary(candidates, days_n)
         allowed_ids = [str(c.get("location_id", "")) for c in pool if c.get("location_id")]
         prompts = [
             _itinerary_prompt_full(
                 pool, days_n, allowed_ids, combined_interests, avoid_l,
-                traveler_type, vibe,
+                traveler_type, vibe, free_text_clean, planner_note_clean,
             ),
             _itinerary_prompt_compact(
                 pool, days_n, allowed_ids, combined_interests, avoid_l,
+                free_text_clean, planner_note_clean,
             ),
         ]
+        # Accept/cache a result only if it has (close to) the requested number
+        # of days. This stops a stray 1-day response from being cached and then
+        # served forever for multi-day trips.
+        min_days = days_n if days_n <= 5 else max(5, days_n - 1)
+
+        def _has_enough_days(payload: Dict[str, Any]) -> bool:
+            return len(_extract_itinerary_days(payload)) >= min_days
+
         last_exc: Optional[Exception] = None
         local_ollama = bool(self.base_url and "11434" in self.base_url)
         for attempt, prompt in enumerate(prompts):
             try:
                 logger.info(
-                    "generate_itinerary attempt %d/%d (model=%s)",
+                    "generate_itinerary attempt %d/%d (model=%s, want %d days)",
                     attempt + 1,
                     len(prompts),
                     self.model,
+                    days_n,
                 )
                 payload = self._chat_json(
                     prompt,
                     schema_hint=f"itinerary-v{attempt}",
-                    cache_ok=_itinerary_payload_ok,
+                    cache_ok=_has_enough_days,
                 )
                 days = _extract_itinerary_days(payload)
                 if not days:
                     raise ValueError("LLM returned no days with stops")
+                if len(days) < min_days:
+                    raise ValueError(
+                        f"LLM returned {len(days)} day(s), need >= {min_days}"
+                    )
                 return {
                     "summary": str(payload.get("summary") or "").strip()
                     or f"A {days_n}-day plan from your top Chicago picks.",
@@ -343,7 +466,7 @@ class LLMService:
                 "AI could not format an itinerary. We will use a data-driven layout instead.",
             ),
             "notice": (
-                "The local model did not return valid JSON. "
+                "The AI did not return a valid plan this time. "
                 "Try again, or use the automatic schedule from your Top picks."
             ),
         }
@@ -655,25 +778,92 @@ class LLMService:
 # --------------------------------------------------------------------------- #
 # Validation helpers
 # --------------------------------------------------------------------------- #
+_BLURB_BY_CATEGORY = {
+    "restaurants": "A local dining pick on the ChicagoDoes map.",
+    "bars": "A go-to Chicago spot for drinks and a night out.",
+    "museums": "A Chicago museum worth a couple of hours.",
+    "parks": "Green space for a walk, views, or downtime.",
+    "attractions": "A popular Chicago attraction visitors love.",
+    "shops": "A spot for browsing and local finds.",
+    "murals": "Public art and a great photo stop.",
+    "theaters and music venues": "Live performance and music in Chicago.",
+    "sports venues": "Catch a game or tour a Chicago sports venue.",
+    "hot spots": "A high-energy spot trending with visitors.",
+}
+
+
+def _clean_category(primary_category: Any, categories: Sequence[str]) -> str:
+    """Best available category as a clean lowercase string (handles NaN/floats)."""
+    if isinstance(primary_category, str) and primary_category.strip():
+        return primary_category.strip().lower()
+    for c in categories or []:
+        if isinstance(c, str) and c.strip():
+            return c.strip().lower()
+    return ""
+
+
+def _fallback_blurb(
+    location_name: str,
+    primary_category: Any,
+    categories: Sequence[str],
+) -> str:
+    cat = _clean_category(primary_category, categories)
+    return _BLURB_BY_CATEGORY.get(cat, "A noteworthy Chicago stop on the ChicagoDoes map.")
+
+
 def _trim_candidates_for_itinerary(
     candidates: Sequence[Dict],
     trip_days: int,
 ) -> List[Dict]:
-    """Keep prompts small enough for local 8B models."""
-    cap = min(len(candidates), max(12, trip_days * 8))
+    """Send a generous slice of the ranked pool with the fields the planner
+    needs to reason about meals, pacing, and a convenient route. OpenAI models
+    handle a wide candidate set easily, which gives the plan more to draw on."""
+    cap = min(len(candidates), max(18, trip_days * 10))
     slim: List[Dict] = []
     for c in list(candidates)[:cap]:
         lid = str(c.get("location_id", ""))
         if not lid:
             continue
+        why = str(c.get("why_recommended") or "").strip()
+        if len(why) > 90:
+            why = why[:87] + "..."
         slim.append({
             "rank": c.get("rank"),
             "location_id": lid,
-            "location_name": str(c.get("location_name", "")),
-            "primary_category": c.get("primary_category"),
+            "name": str(c.get("location_name", "")),
+            "category": c.get("primary_category"),
+            "slots": c.get("slots") or [],
+            "area": c.get("area") or "Area ?",
+            "lat": c.get("lat"),
+            "lon": c.get("lon"),
             "score": c.get("score"),
+            "why": why,
         })
     return slim
+
+
+def _visitor_profile_block(
+    interests: Sequence[str],
+    avoid_l: Sequence[str],
+    traveler_type: Optional[str],
+    vibe: Optional[str],
+    trip_days: int,
+    free_text: Optional[str],
+    planner_note: Optional[str],
+) -> str:
+    """A compact, explicit dump of every preference the visitor gave us."""
+    lines = [
+        f"- traveler_type: {traveler_type or 'no preference'}",
+        f"- vibe: {vibe or 'no preference'}",
+        f"- trip_length_days: {trip_days}",
+        f"- interests (want more of): {', '.join(interests) if interests else 'none specified'}",
+        f"- avoid (never schedule): {', '.join(avoid_l) if avoid_l else 'none'}",
+    ]
+    if free_text:
+        lines.append(f"- in their own words: \"{free_text}\"")
+    if planner_note:
+        lines.append(f"- latest tweak to honor: \"{planner_note}\"")
+    return "VISITOR PROFILE:\n" + "\n".join(lines)
 
 
 def _itinerary_prompt_full(
@@ -684,19 +874,60 @@ def _itinerary_prompt_full(
     avoid_l: Sequence[str],
     traveler_type: Optional[str],
     vibe: Optional[str],
+    free_text: Optional[str] = None,
+    planner_note: Optional[str] = None,
 ) -> str:
+    profile = _visitor_profile_block(
+        interests, avoid_l, traveler_type, vibe, days_n, free_text, planner_note,
+    )
     return (
-        "Chicago trip planner. Schedule ONLY location_ids from `candidates`.\n"
-        "Return JSON with top-level keys `summary` and `days` (array). "
-        "Each day: day_number, theme, narrative, stops[]. "
-        "Each stop: location_id, slot (breakfast|morning|lunch|afternoon|dinner|drinks), "
-        "slot_label, note.\n"
-        f"Plan exactly {days_n} day(s). 4-6 stops per day. No duplicate location_ids.\n"
-        f"allowed_ids: {json.dumps(list(allowed_ids))}\n"
-        f"interests: {json.dumps(list(interests))}\n"
-        f"avoid_categories: {json.dumps(list(avoid_l))}\n"
-        f"traveler_type: {json.dumps(traveler_type)}\n"
-        f"vibe: {json.dumps(vibe)}\n"
+        "You are an expert Chicago trip planner. Build a realistic, personalized "
+        "day-by-day itinerary for the visitor described below.\n\n"
+        f"{profile}\n\n"
+        "You are given ranked `candidates` (already tailored to this visitor). "
+        "Each candidate has: location_id, name, category, `slots` (times of day it "
+        "suits), `area` (a geographic cluster), `lat`/`lon` (its location), `score` "
+        "(relevance, higher=better), and `why` (why it was recommended). Lower "
+        "`rank` = stronger match. Candidates sharing an `area` or with close "
+        "`lat`/`lon` are near each other.\n\n"
+        "HARD RULES:\n"
+        "1. Build primarily from `candidates`; you may add up to 2 real, well-known "
+        "Chicago places per day only when they improve the route or satisfy a "
+        "specific visitor request.\n"
+        "2. Include several of the top picks (low `rank` / high `score`) across "
+        "the trip. Never invent fictional locations.\n"
+        "3. Reflect the VISITOR PROFILE: lean into their interests, vibe, and their "
+        "own words / latest tweak when choosing AND ordering stops. If they mention "
+        "something specific (e.g. jazz, deep-dish, architecture), prioritize "
+        "candidates that match it and mention it in the narrative.\n"
+        f"4. Plan exactly {days_n} day(s), 3-5 stops per day (a relaxed, realistic "
+        "pace — not rushed, not sparse). No location repeats across the whole trip.\n"
+        "5. Each stop's `slot` must fit it. Meals matter: breakfast/lunch/dinner "
+        "must be Restaurants/cafes; drinks must be Bars. NEVER put a bar or museum "
+        "in a breakfast or lunch slot. For candidates, use one of their `slots`.\n"
+        "6. GEOGRAPHIC COHERENCE (very important): all of a day's stops must be in "
+        "the SAME part of the city — keep them within one `area` (or very close "
+        "`lat`/`lon`, within ~3-4 km of each other). Never plan north Chicago in "
+        "the morning, a far-south lunch, then north again in the afternoon. If you "
+        "want a far-apart place, put it on a DIFFERENT day. Pick each day's lunch "
+        "and dinner near that day's other stops. Use your knowledge of Chicago "
+        "neighborhoods to keep the route compact and avoid backtracking.\n"
+        "7. Order each day naturally by time: breakfast -> morning -> lunch -> "
+        "afternoon -> dinner -> drinks. One meal anchor plus 1-2 nearby activities.\n"
+        f"8. NEVER schedule anything in avoid: {json.dumps(list(avoid_l))}\n\n"
+        "Return STRICT JSON only:\n"
+        '{"summary": string, "days": [{"day_number": int, "theme": string, '
+        '"narrative": string, "stops": [{"location_id": string, "location_name": '
+        'string, "slot": string, "slot_label": string, "note": string, '
+        '"primary_category": string, "lat": number, "lon": number}]}]}\n'
+        "STOP FIELDS: For a CANDIDATE stop, set `location_id` to its exact id "
+        "(name/lat/lon/category are known — you may omit them). For a place YOU add, "
+        'set `location_id` to "" (empty string) and you MUST provide `location_name` '
+        "(the real place's name), `primary_category`, and approximate real Chicago "
+        "`lat`/`lon` (decimal degrees) so it can be mapped on the route.\n"
+        "`summary` should speak to this visitor's profile. `note` = one short "
+        "sentence on why this stop fits them / its place in the day. No markdown, "
+        "no extra keys.\n\n"
         f"candidates: {json.dumps(list(pool))}\n"
     )
 
@@ -707,14 +938,33 @@ def _itinerary_prompt_compact(
     allowed_ids: Sequence[str],
     interests: Sequence[str],
     avoid_l: Sequence[str],
+    free_text: Optional[str] = None,
+    planner_note: Optional[str] = None,
 ) -> str:
+    extra = ""
+    if free_text:
+        extra += f"visitor_says: {json.dumps(free_text)}\n"
+    if planner_note:
+        extra += f"latest_tweak: {json.dumps(planner_note)}\n"
     return (
-        "Return ONLY valid JSON:\n"
+        "Return ONLY valid JSON for a personalized Chicago itinerary:\n"
         '{"summary":"...", "days":[{"day_number":1,"theme":"...","narrative":"...",'
-        '"stops":[{"location_id":"...","slot":"morning","slot_label":"Morning","note":"..."}]}]}\n'
-        f"Exactly {days_n} day(s). Use 4-5 stops per day. "
-        f"location_id MUST be from this list: {json.dumps(list(allowed_ids))}\n"
-        f"interests: {json.dumps(list(interests)[:5])}\n"
+        '"stops":[{"location_id":"...","location_name":"...","slot":"morning",'
+        '"slot_label":"Morning","note":"...","primary_category":"...","lat":0,"lon":0}]}]}\n'
+        f"Exactly {days_n} day(s), 3-5 stops per day, no repeats.\n"
+        "Anchor on `places` (data-ranked) and include several of the top ones. Also "
+        "add at least one other REAL Chicago place across the trip that fits the "
+        'route — for those set location_id="" and give location_name + '
+        "primary_category + real lat/lon. For a place from `places`, use its exact "
+        "location_id.\n"
+        "Meals (breakfast/lunch/dinner) must be Restaurants; drinks must be Bars. "
+        "Keep ALL of a day's stops in the same area (same `area` or close "
+        "`lat`/`lon`, within a few km) — never north then far-south then north. "
+        "Honor the visitor's words/tweak below.\n"
+        f"avoid: {json.dumps(list(avoid_l))}\n"
+        f"interests: {json.dumps(list(interests)[:6])}\n"
+        f"{extra}"
+        f"candidate location_ids: {json.dumps(list(allowed_ids))}\n"
         f"places: {json.dumps(list(pool))}\n"
     )
 
@@ -777,10 +1027,6 @@ def _filter_days_with_stops(days: List[Any]) -> List[Dict[str, Any]]:
     return out
 
 
-def _itinerary_payload_ok(payload: Dict[str, Any]) -> bool:
-    return bool(_extract_itinerary_days(payload))
-
-
 def _ping_llm_server(base_url: str, timeout: float = 2.0) -> bool:
     """Best-effort check that a local Ollama (or compatible) server is up."""
     root = base_url.rstrip("/")
@@ -796,28 +1042,38 @@ def _ping_llm_server(base_url: str, timeout: float = 2.0) -> bool:
 
 def _user_facing_llm_error(exc: Exception, fallback: str) -> str:
     msg = f"{type(exc).__name__}: {exc}".lower()
-    if "connection" in msg or "connect" in msg or "refused" in msg:
+    if "401" in msg or "api key" in msg or "unauthorized" in msg or "authentication" in msg:
         return (
-            "Cannot reach Ollama. Keep `ollama serve` running in a **separate** "
-            "terminal, then click Build AI itinerary again."
+            "AI is not configured. Add a valid OPENAI_API_KEY to your .env, "
+            "restart the server, then build the itinerary again."
         )
-    if "not found" in msg and "model" in msg:
+    if "429" in msg or "rate limit" in msg or "quota" in msg:
         return (
-            "Ollama model missing. Run: ollama pull llama3.1:8b  then retry."
+            "OpenAI is rate-limiting or out of quota right now. "
+            "Wait a moment and try again, or use the schedule from your Top picks."
+        )
+    if "connection" in msg or "connect" in msg or "refused" in msg or "timeout" in msg:
+        return (
+            "Could not reach the AI service. Check your connection (or, for local "
+            "Ollama, keep `ollama serve` running), then build the itinerary again."
         )
     return fallback
 
 
 def _resolve_llm_base_url(raw: Optional[str]) -> Optional[str]:
-    """Return OpenAI-compatible base URL.
+    """Return the OpenAI-compatible base URL for the configured provider.
 
-    Unset → Ollama local. Empty string or ``openai`` → official OpenAI cloud.
+    Default (unset / empty / ``openai`` / ``cloud``) → official OpenAI cloud
+    (``base_url=None``). ``ollama`` → local Ollama. Any other value is used
+    verbatim as a custom OpenAI-compatible endpoint (Groq, vLLM, etc.).
     """
     if raw is None:
-        return DEFAULT_LLM_BASE_URL.rstrip("/")
-    s = raw.strip()
-    if not s or s.lower() in {"openai", "none", "default"}:
         return None
+    s = raw.strip()
+    if not s or s.lower() in {"openai", "none", "default", "cloud"}:
+        return None
+    if s.lower() == "ollama":
+        return OLLAMA_BASE_URL
     return s.rstrip("/")
 
 

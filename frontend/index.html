@@ -1,203 +1,374 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="is-landing">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ChicagoDoes Recommender</title>
+    <link rel="icon" type="image/png" href="/static/ateema-tab-logo.png" />
+    <link rel="apple-touch-icon" href="/static/ateema-tab-logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@450;550;650;750;850;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/static/styles.css" />
     <!-- Leaflet (open-source map, no API key) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   </head>
-  <body>
+  <body class="is-landing">
     <header class="topbar">
       <div class="topbar__inner">
-        <div class="brand">
-          <span class="brand__mark">CD</span>
-          <div>
-            <div class="brand__name">ChicagoDoes Recommender</div>
-            <div class="brand__sub">Content-based picks from the interactive map</div>
-          </div>
-        </div>
-        <div id="health" class="health">checking…</div>
+        <a class="brand" href="/" aria-label="Ateema Media & Marketing ChicagoDoes Recommender home">
+          <span class="brand__mark brand__mark--logo">
+            <img src="/static/ateema-logo.png" alt="Ateema Media & Marketing" />
+          </span>
+          <span class="brand__text">
+            <span class="brand__name">ChicagoDoes Recommender</span>
+            <span class="brand__sub">Powered by Ateema visitor data</span>
+          </span>
+        </a>
       </div>
     </header>
 
-    <main class="layout">
-      <!-- ============== Form column ============== -->
-      <section class="card form-card">
-        <h2>Tell us about your trip</h2>
-
-        <p class="form-card__lead muted">
-          Choose your preferences below. Optionally simulate a returning visitor (demo only).
-        </p>
-
-        <form id="rec-form" class="form">
-          <label class="field">
-            <span>Simulate returning visitor (demo only)</span>
-            <select id="user_key">
-              <option value="">— New visitor (default) —</option>
-            </select>
-          </label>
-
-          <div class="row two">
-            <label class="field">
-              <span>Traveler type</span>
-              <select id="traveler_type">
-                <option value="">No preference</option>
-                <option value="solo">Solo</option>
-                <option value="couple">Couple</option>
-                <option value="family">Family</option>
-                <option value="group">Group of friends</option>
-                <option value="business">Business</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span>Vibe</span>
-              <select id="vibe">
-                <option value="">No preference</option>
-                <option value="chill">Chill</option>
-                <option value="adventurous">Adventurous</option>
-                <option value="foodie">Foodie</option>
-                <option value="nightlife">Nightlife</option>
-                <option value="cultural">Cultural</option>
-                <option value="outdoorsy">Outdoorsy</option>
-              </select>
-            </label>
+    <main class="app-shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__media" aria-hidden="true">
+          <video class="hero__video" autoplay muted loop playsinline
+            poster="/cards/1eb0d402-8f19-46df-90f8-0b1c953cfa88_i0.jpg">
+            <source src="/card-videos/7e7a14e6-4a70-44d0-8dac-2a4ac9b58de5_v0.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="hero__scrim"></div>
+        <div class="hero__content">
+          <div class="hero__copy">
+            <p class="hero__label">Chicago, ranked by real visitor behavior</p>
+            <h1 id="hero-title">Plan the day from a city that is already moving.</h1>
+            <p class="hero__lede">
+              Start with a few preferences or skip straight to the strongest ChicagoDoes picks.
+              Every catalog place is backed by verified media, map links, and the recommender’s
+              live ranking signals.
+            </p>
+            <p class="hero__action-intro">Choose one option to begin.</p>
+            <div class="hero__actions" aria-label="Choose how to start">
+              <button type="button" id="start-personalize" class="btn btn--light">
+                <span class="btn__sub">Personalize my picks</span>
+              </button>
+              <button type="button" id="start-top" class="btn btn--dark">
+                <span class="btn__sub">Show top places now</span>
+              </button>
+            </div>
           </div>
 
-          <fieldset class="field">
-            <legend>Interests</legend>
-            <div id="interests" class="chips"></div>
-          </fieldset>
-
-          <fieldset class="field">
-            <legend>Avoid</legend>
-            <div id="avoid" class="chips chips--muted"></div>
-          </fieldset>
-
-          <label class="field">
-            <span>Trip length</span>
-            <select id="trip_days">
-              <option value="1">1 day</option>
-              <option value="2" selected>2 days</option>
-              <option value="3">3 days</option>
-              <option value="4">4 days</option>
-              <option value="5">5 days</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Anything else? (free text)</span>
-            <textarea id="free_text" rows="3"
-              placeholder="e.g. I love jazz, deep-dish pizza, and outdoor sculptures"></textarea>
-          </label>
-
-          <label class="field field--checkbox">
-            <input type="checkbox" id="use_ai_itinerary" />
-            <span>
-              Plan my days with AI — schedules only from your
-              <strong>Top picks</strong> (data-ranked first, AI arranges second).
-            </span>
-          </label>
-          <p id="ai-itin-hint" class="muted field-hint hidden">
-            Get recommendations first, then build the itinerary. We never add places
-            that are not already in your list.
-          </p>
-
-          <div class="actions">
-            <button type="submit" id="submit-btn" class="btn btn--primary">
-              Get recommendations
+          <aside class="hero__panel hero__panel--start" id="start-panel" aria-label="Start recommendations">
+            <div class="hero__panel-top">
+              <span class="hero__status-dot"></span>
+              <span>Start here</span>
+            </div>
+            <div class="hero__number"><span id="welcome-locations">350</span></div>
+            <p>catalog places with verified media, ranked by real ChicagoDoes signals.</p>
+            <label class="field field--dark top-count-field">
+              <span>How many places should we show?</span>
+              <select id="quick_top_k" class="top-count-select">
+                <option value="10">Top 10</option>
+                <option value="20">Top 20</option>
+                <option value="40" selected>Top 40</option>
+                <option value="60">Top 60</option>
+                <option value="80">Top 80</option>
+              </select>
+            </label>
+            <button type="button" id="welcome-trending" class="hero__trend hero__trend-button hidden">
+              <span class="hero__trend-head">
+                <span>Trending now</span>
+                <span class="hero__trend-cta">Open slider →</span>
+              </span>
+              <span id="welcome-trend-row" class="hero__trend-row"></span>
             </button>
-            <button type="button" id="plan-btn" class="btn btn--ghost" disabled>
-              Build AI itinerary
-            </button>
-          </div>
-        </form>
+          </aside>
+
+          <aside class="profile-wizard hidden" id="profile-wizard" aria-labelledby="wizard-title">
+            <div class="wizard__top">
+              <div>
+                <p class="hero__label">Personalize</p>
+                <h2 id="wizard-title">Build your trip profile</h2>
+              </div>
+              <div class="wizard__step-count">
+                <span id="wizard-step-current">1</span>/<span id="wizard-step-total">5</span>
+              </div>
+            </div>
+            <div class="wizard__progress" aria-hidden="true">
+              <span id="wizard-progress-bar"></span>
+            </div>
+
+            <div class="wizard__stage is-active" data-wizard-step="0">
+              <p class="wizard__eyebrow">Traveler type</p>
+              <h3>Who is this day for?</h3>
+              <div class="wizard__choices">
+                <button type="button" class="wizard-choice" data-field="traveler_type" data-value="">No preference</button>
+                <button type="button" class="wizard-choice" data-field="traveler_type" data-value="solo">Solo</button>
+                <button type="button" class="wizard-choice" data-field="traveler_type" data-value="couple">Couple</button>
+                <button type="button" class="wizard-choice" data-field="traveler_type" data-value="family">Family</button>
+                <button type="button" class="wizard-choice" data-field="traveler_type" data-value="group">Friends</button>
+                <button type="button" class="wizard-choice" data-field="traveler_type" data-value="business">Business</button>
+              </div>
+            </div>
+
+            <div class="wizard__stage" data-wizard-step="1">
+              <p class="wizard__eyebrow">Vibe</p>
+              <h3>What should the day feel like?</h3>
+              <div class="wizard__choices">
+                <button type="button" class="wizard-choice" data-field="vibe" data-value="">No preference</button>
+                <button type="button" class="wizard-choice" data-field="vibe" data-value="chill">Chill</button>
+                <button type="button" class="wizard-choice" data-field="vibe" data-value="adventurous">Adventurous</button>
+                <button type="button" class="wizard-choice" data-field="vibe" data-value="foodie">Foodie</button>
+                <button type="button" class="wizard-choice" data-field="vibe" data-value="nightlife">Nightlife</button>
+                <button type="button" class="wizard-choice" data-field="vibe" data-value="cultural">Cultural</button>
+                <button type="button" class="wizard-choice" data-field="vibe" data-value="outdoorsy">Outdoorsy</button>
+              </div>
+            </div>
+
+            <div class="wizard__stage" data-wizard-step="2">
+              <p class="wizard__eyebrow">Interests</p>
+              <h3>Pick what should lead the ranking.</h3>
+              <div id="wizard-interests" class="chips chips--dark"></div>
+            </div>
+
+            <div class="wizard__stage" data-wizard-step="3">
+              <p class="wizard__eyebrow">Avoid</p>
+              <h3>Anything to down-rank?</h3>
+              <div id="wizard-avoid" class="chips chips--dark chips--avoid"></div>
+            </div>
+
+            <div class="wizard__stage" data-wizard-step="4">
+              <p class="wizard__eyebrow">Trip shape</p>
+              <h3>Choose the scale of the result.</h3>
+              <div class="wizard__fields">
+                <label class="field field--dark">
+                  <span>Trip length</span>
+                  <select id="wizard_trip_days">
+                    <option value="" selected>Choose days</option>
+                    <option value="1">1 day</option>
+                    <option value="2">2 days</option>
+                    <option value="3">3 days</option>
+                    <option value="4">4 days</option>
+                    <option value="5">5 days</option>
+                  </select>
+                </label>
+                <label class="field field--dark">
+                  <span>Places to show</span>
+                  <select id="wizard_top_k" class="top-count-select">
+                    <option value="10">Top 10</option>
+                    <option value="20">Top 20</option>
+                    <option value="40" selected>Top 40</option>
+                    <option value="60">Top 60</option>
+                    <option value="80">Top 80</option>
+                  </select>
+                </label>
+                <label class="field field--dark wizard__notes">
+                  <span>Optional notes</span>
+                  <textarea id="wizard_free_text" rows="3" placeholder="jazz, skyline views, deep-dish, low walking"></textarea>
+                </label>
+                <label class="field field--checkbox field--checkbox-dark">
+                  <input type="checkbox" id="wizard_use_ai_itinerary" />
+                  <span>Build an AI day plan after ranking.</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="wizard__summary" id="wizard-summary">No preferences selected yet.</div>
+            <div class="wizard__nav">
+              <button type="button" id="wizard-back" class="btn btn--ghost" disabled>Back</button>
+              <button type="button" id="wizard-next" class="btn btn--light">Next</button>
+              <button type="button" id="wizard-finish" class="btn btn--dark hidden">Show my places</button>
+            </div>
+          </aside>
+        </div>
       </section>
 
-      <!-- ============== Results column ============== -->
-      <section class="results">
-        <div id="status" class="status hidden"></div>
-
-        <div id="welcome" class="card welcome">
-          <h2>Welcome to ChicagoDoes</h2>
-          <p class="muted">
-            Tell us about your trip on the left and we'll mine our
-            <b id="welcome-events">11.7k</b> real engagement events to
-            recommend the best spots out of
-            <b id="welcome-locations">350</b> places — with a
-            walkable day-by-day itinerary from your Top picks, and
-            transparent score breakdowns behind every place.
-          </p>
-          <ul class="welcome__feats">
-            <li><span>📊</span> Each recommendation shows the data behind it</li>
-            <li><span>🗺️</span> AI itinerary only schedules your data-ranked Top picks</li>
-            <li><span>👥</span> Matched against behaviourally similar real visitors</li>
-          </ul>
-          <div id="welcome-trending" class="welcome__trend hidden">
-            <div class="welcome__trend-label">🔥 Trending right now</div>
-            <div id="welcome-trend-row" class="welcome__trend-row"></div>
-          </div>
-        </div>
-
-        <div id="reco-panel" class="card hidden">
-          <header class="card__header">
-            <h2>Top picks</h2>
-            <div id="reco-meta" class="muted"></div>
-          </header>
-          <div id="archetype" class="archetype hidden"></div>
-          <div id="similar-users" class="similar hidden"></div>
-          <p id="reco-scroll-hint" class="reco-pager-hint muted hidden">
-            Page <span id="reco-page-num">1</span> of <span id="reco-page-total">1</span>
-            · <span id="reco-range"></span> of <span id="reco-count"></span>
-          </p>
-          <div class="reco-carousel">
-            <button type="button" id="reco-prev" class="reco-carousel__btn" aria-label="Previous page" disabled>‹</button>
-            <div class="reco-carousel__viewport">
-              <div id="reco-grid" class="grid reco-grid reco-grid--3"></div>
+      <section class="workspace is-results-only" aria-label="Recommendation workspace">
+        <section id="profile-panel" class="panel profile-panel is-dormant" aria-labelledby="profile-title">
+          <div class="panel__header">
+            <div>
+              <p class="panel__label">Trip profile</p>
+              <h2 id="profile-title">Tune the ranking</h2>
             </div>
-            <button type="button" id="reco-next" class="reco-carousel__btn" aria-label="Next page">›</button>
+            <button type="button" id="profile-close" class="btn btn--secondary btn--sm" aria-label="Hide trip profile">Hide</button>
           </div>
-        </div>
 
-        <div id="itin-panel" class="card hidden">
-          <header class="card__header">
-            <h2>Your itinerary</h2>
-            <div id="itin-summary" class="muted"></div>
-          </header>
-          <div id="itin-notice" class="itin-notice hidden"></div>
-          <div id="itin-skip" class="itin-skip hidden"></div>
-          <div id="itin-days" class="days"></div>
+          <form id="rec-form" class="form">
+            <div class="row two">
+              <label class="field">
+                <span>Traveler type</span>
+                <select id="traveler_type">
+                  <option value="">No preference</option>
+                  <option value="solo">Solo</option>
+                  <option value="couple">Couple</option>
+                  <option value="family">Family</option>
+                  <option value="group">Group of friends</option>
+                  <option value="business">Business</option>
+                </select>
+              </label>
 
-          <!-- A4: refinement chat -->
-          <div class="refine">
-            <h3>Tweak your plan</h3>
-            <div class="refine__row">
-              <input type="text" id="refine-text"
-                placeholder="e.g. make day 2 more chill, no bars, swap in a museum" />
-              <button type="button" id="refine-go" class="btn btn--ghost btn--sm">Apply</button>
+              <label class="field">
+                <span>Vibe</span>
+                <select id="vibe">
+                  <option value="">No preference</option>
+                  <option value="chill">Chill</option>
+                  <option value="adventurous">Adventurous</option>
+                  <option value="foodie">Foodie</option>
+                  <option value="nightlife">Nightlife</option>
+                  <option value="cultural">Cultural</option>
+                  <option value="outdoorsy">Outdoorsy</option>
+                </select>
+              </label>
             </div>
-            <div id="refine-status" class="muted"></div>
+
+            <label class="field">
+              <span>Places to show</span>
+              <select id="top_k" class="top-count-select">
+                <option value="10">Top 10</option>
+                <option value="20">Top 20</option>
+                <option value="40" selected>Top 40</option>
+                <option value="60">Top 60</option>
+                <option value="80">Top 80</option>
+              </select>
+            </label>
+
+            <fieldset class="field">
+              <legend>Interests</legend>
+              <div id="interests" class="chips"></div>
+            </fieldset>
+
+            <fieldset class="field">
+              <legend>Avoid</legend>
+              <div id="avoid" class="chips chips--muted"></div>
+            </fieldset>
+
+            <div class="row two">
+              <label class="field">
+                <span>Trip length</span>
+                <select id="trip_days">
+                  <option value="" selected>Choose days</option>
+                  <option value="1">1 day</option>
+                  <option value="2">2 days</option>
+                  <option value="3">3 days</option>
+                  <option value="4">4 days</option>
+                  <option value="5">5 days</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field field--notes">
+              <span>Notes</span>
+              <textarea id="free_text" rows="3"
+                placeholder="jazz, deep-dish pizza, outdoor sculpture"></textarea>
+            </label>
+
+            <label class="field field--checkbox">
+              <input type="checkbox" id="use_ai_itinerary" />
+              <span>
+                Build an AI day plan from my Top picks, with catalog media attached for every
+                ChicagoDoes stop.
+              </span>
+            </label>
+
+            <div class="actions">
+              <button type="submit" id="submit-btn" class="btn btn--primary">
+                Get recommendations
+              </button>
+              <button type="button" id="plan-btn" class="btn btn--secondary" disabled>
+                Build AI day plan
+              </button>
+            </div>
+            <p id="ai-itin-hint" class="field-hint hidden">
+              Get recommendations first. The AI arranges your ranked pool and may add a few
+              outside stops without media when useful.
+            </p>
+          </form>
+        </section>
+
+        <section class="results" aria-label="Results">
+          <div id="status" class="status hidden"></div>
+
+          <div id="trending-panel" class="panel results-panel trending-panel hidden">
+            <header class="results-head">
+              <div>
+                <p class="panel__label">Trending now</p>
+                <h2>Places gaining attention right now</h2>
+              </div>
+              <div id="trending-meta" class="results-head__meta"></div>
+            </header>
+            <p id="trending-scroll-hint" class="reco-pager-hint hidden">
+              Page <span id="trending-page-num">1</span> of <span id="trending-page-total">1</span>
+              · <span id="trending-range"></span> of <span id="trending-count"></span>
+            </p>
+            <div class="reco-carousel trending-carousel">
+              <button type="button" id="trending-prev" class="reco-carousel__btn" aria-label="Previous trending page" disabled>‹</button>
+              <div class="reco-carousel__viewport" id="trending-viewport">
+                <div id="trending-grid" class="grid reco-grid reco-grid--3"></div>
+              </div>
+              <button type="button" id="trending-next" class="reco-carousel__btn" aria-label="Next trending page">›</button>
+            </div>
           </div>
-        </div>
+
+          <div id="reco-panel" class="panel results-panel hidden">
+            <header class="results-head">
+              <div>
+                <p class="panel__label">Top picks</p>
+                <h2>Best matches across Chicago</h2>
+              </div>
+              <div class="results-head__side">
+                <label class="results-count">
+                  <span>Show</span>
+                  <select id="results_top_k" class="top-count-select">
+                    <option value="10">Top 10</option>
+                    <option value="20">Top 20</option>
+                    <option value="40" selected>Top 40</option>
+                    <option value="60">Top 60</option>
+                    <option value="80">Top 80</option>
+                  </select>
+                </label>
+                <div id="reco-meta" class="results-head__meta"></div>
+              </div>
+            </header>
+            <p id="reco-scroll-hint" class="reco-pager-hint hidden">
+              Page <span id="reco-page-num">1</span> of <span id="reco-page-total">1</span>
+              · <span id="reco-range"></span> of <span id="reco-count"></span>
+            </p>
+            <div class="reco-carousel">
+              <button type="button" id="reco-prev" class="reco-carousel__btn" aria-label="Previous page" disabled>‹</button>
+              <div class="reco-carousel__viewport">
+                <div id="reco-grid" class="grid reco-grid reco-grid--3"></div>
+              </div>
+              <button type="button" id="reco-next" class="reco-carousel__btn" aria-label="Next page">›</button>
+            </div>
+          </div>
+
+          <div id="itin-panel" class="panel itinerary-panel hidden">
+            <header class="results-head">
+              <div>
+                <p class="panel__label">Route</p>
+                <h2>Your AI day plan</h2>
+              </div>
+              <div id="itin-summary" class="results-head__meta"></div>
+            </header>
+            <div id="itin-notice" class="itin-notice hidden"></div>
+            <div id="itin-skip" class="itin-skip hidden"></div>
+            <div id="itin-days" class="days"></div>
+
+            <div class="refine">
+              <h3>Tweak your plan</h3>
+              <div class="refine__row">
+                <input type="text" id="refine-text"
+                  placeholder="make day 2 more chill, no bars, swap in a museum" />
+                <button type="button" id="refine-go" class="btn btn--secondary btn--sm">
+                  Apply
+                </button>
+              </div>
+              <div id="refine-status" class="muted"></div>
+            </div>
+          </div>
+        </section>
       </section>
     </main>
-
-    <!-- LLM modal -->
-    <dialog id="info-modal" class="modal">
-      <article>
-        <header>
-          <h3 id="modal-title">Loading…</h3>
-          <button class="modal__close" aria-label="Close"
-            onclick="document.getElementById('info-modal').close()">×</button>
-        </header>
-        <div id="modal-body">
-          <p>Asking the concierge…</p>
-        </div>
-      </article>
-    </dialog>
 
     <script src="/static/app.js"></script>
   </body>

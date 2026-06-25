@@ -102,6 +102,3 @@ class TrendingSignal:
             [float(self.score_by_location.get(str(lid), 0.0)) for lid in location_ids],
             dtype=float,
         )
-
-    def is_trending(self, location_id: str) -> bool:
-        return self.score_by_location.get(str(location_id), 0.0) >= TRENDING_HIGHLIGHT_THRESHOLD

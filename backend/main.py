@@ -14,29 +14,35 @@ The frontend is served from the `frontend/` directory mounted at `/`.
 from __future__ import annotations
 
 import logging
+import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote_plus
+from urllib.parse import urlparse
 
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from .data_loader import WarehouseFrames, load_warehouse
+from .data_loader import WarehouseFrames, load_public_demo_warehouse, load_warehouse
 from .itinerary_llm import (
     PLAN_AI,
     assemble_itinerary_plan,
     build_geo_index,
+    build_location_indexes,
     count_scheduled_stops,
     deterministic_itinerary_payload,
     filter_to_recommendation_pool,
     recommendations_for_prompt,
+    _norm_name,
 )
-from .llm_service import LLMService
+from .llm_service import LLMService, _fallback_blurb
+from .location_enrich import LocationEnricher
 from .recommender import ContentRecommender
 from .schemas import (
     Archetype,
@@ -50,8 +56,12 @@ from .schemas import (
     ItineraryStop,
     LocationCard,
     LocationEvidence,
+    LocationCardRequest,
+    LocationCardResponse,
+    CardMediaItem,
     LocationInfoRequest,
     LocationInfoResponse,
+    OutboundClickRequest,
     RecommendRequest,
     RecommendResponse,
     RefineRequest,
@@ -78,6 +88,18 @@ EVENTS_PATH = os.getenv("EVENTS_PATH", str(PROJECT_ROOT / "data" / "events.csv")
 GEO_PATH = os.getenv("GEO_PATH", str(PROJECT_ROOT / "data" / "locations_geo.csv"))
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 
+# Prebuilt card enrichment (photo + one-line blurb + official site), generated
+# offline by `scripts/build_location_cards.py`. Served to users with NO OpenAI
+# or external calls — only the AI itinerary hits the LLM at request time.
+CARD_STORE_PATH = os.getenv("CARD_STORE_PATH", str(PROJECT_ROOT / "data" / "location_cards.json"))
+CARD_IMAGES_DIR = os.getenv("CARD_IMAGES_DIR", str(PROJECT_ROOT / "data" / "location_images"))
+CARD_VIDEOS_DIR = os.getenv("CARD_VIDEOS_DIR", str(PROJECT_ROOT / "data" / "location_videos"))
+OUTBOUND_CLICKS_PATH = os.getenv(
+    "RECOMMENDER_OUTBOUND_CLICKS_PATH",
+    str(PROJECT_ROOT / "data" / "outbound_clicks.jsonl"),
+)
+os.environ.setdefault("RECOMMENDER_OUTBOUND_CLICKS_PATH", OUTBOUND_CLICKS_PATH)
+
 BQ_PROJECT = os.getenv("BQ_PROJECT", "").strip()
 BQ_DATASET = os.getenv("BQ_DATASET", "").strip()
 BQ_TABLE_FEATURES = os.getenv("BQ_TABLE_FEATURES", "user_location_full_features")
@@ -94,13 +116,9 @@ _LAST_LOAD_MODE: dict = {"mode": "unknown", "warning": None}
 
 
 def _build_bq_config():
-    """Return BQConfig (BQ_PROJECT / BQ_DATASET must be set)."""
+    """Return BQConfig when BQ_PROJECT / BQ_DATASET are set."""
     if not (BQ_PROJECT and BQ_DATASET):
-        raise RuntimeError(
-            "BigQuery is the only supported data source. Set BQ_PROJECT and "
-            "BQ_DATASET in .env (and run `gcloud auth application-default "
-            "login` once)."
-        )
+        return None
     from .sources.bq_source import BQConfig
     return BQConfig(
         project=BQ_PROJECT,
@@ -112,49 +130,74 @@ def _build_bq_config():
 
 
 def _load_frames() -> WarehouseFrames:
-    """Load warehouse frames from BigQuery, with a local-cache fallback.
+    """Load warehouse frames from BigQuery, local cache, or public demo data.
 
     Strategy:
-      1. Try BigQuery (using Application Default Credentials).
-      2. If BigQuery fails (no creds, network down, ...) AND a local
-         cache from a previous `python -m backend.refresh` exists,
-         fall back to that and surface a warning via /api/health.
-      3. If neither works, propagate the original error.
+      1. Try BigQuery when BQ_PROJECT and BQ_DATASET are configured.
+      2. Fall back to full local cache from `python -m backend.refresh`.
+      3. Fall back to public CSVs (`location_dim`, `events`, `geo`) so free
+         hosts can boot without private credentials.
 
     To keep the offline cache fresh, run:
         python -m backend.refresh
     """
     cfg = _build_bq_config()
-    try:
-        logger.info(
-            "Loading warehouse from BigQuery (project=%s dataset=%s)",
-            cfg.project, cfg.dataset,
-        )
-        frames = load_warehouse(
-            source="bq", bq_config=cfg,
-            geo_path=GEO_PATH if Path(GEO_PATH).exists() else None,
-        )
-        _LAST_LOAD_MODE.update({"mode": "bigquery", "warning": None})
-        return frames
-    except Exception as exc:  # noqa: BLE001
-        if _local_cache_present():
-            logger.warning(
-                "BigQuery load failed (%s). Falling back to local cache "
-                "under %s. Run `python -m backend.refresh` after fixing "
-                "BQ access to refresh the offline cache.", exc, CACHE_DIR,
+    bq_error: Optional[Exception] = None
+    if cfg is not None:
+        try:
+            logger.info(
+                "Loading warehouse from BigQuery (project=%s dataset=%s)",
+                cfg.project, cfg.dataset,
             )
             frames = load_warehouse(
-                csv_path=DATA_CSV_PATH,
-                location_dim_path=LOCATION_DIM_PATH,
-                events_path=EVENTS_PATH,
+                source="bq", bq_config=cfg,
                 geo_path=GEO_PATH if Path(GEO_PATH).exists() else None,
             )
-            _LAST_LOAD_MODE.update({
-                "mode": "local_cache_fallback",
-                "warning": f"BigQuery unavailable: {exc}",
-            })
+            _LAST_LOAD_MODE.update({"mode": "bigquery", "warning": None})
             return frames
-        raise
+        except Exception as exc:  # noqa: BLE001
+            bq_error = exc
+            logger.warning("BigQuery load failed: %s", exc)
+
+    if _local_cache_present():
+        warning = None
+        if bq_error:
+            warning = f"BigQuery unavailable: {bq_error}"
+        elif cfg is None:
+            warning = "BigQuery env vars not set; using local cache."
+        frames = load_warehouse(
+            csv_path=DATA_CSV_PATH,
+            location_dim_path=LOCATION_DIM_PATH,
+            events_path=EVENTS_PATH,
+            geo_path=GEO_PATH if Path(GEO_PATH).exists() else None,
+        )
+        _LAST_LOAD_MODE.update({
+            "mode": "local_cache_fallback",
+            "warning": warning,
+        })
+        return frames
+
+    if Path(LOCATION_DIM_PATH).exists():
+        warning = "BigQuery env vars not set; using public demo CSVs."
+        if bq_error:
+            warning = f"BigQuery unavailable: {bq_error}; using public demo CSVs."
+        frames = load_public_demo_warehouse(
+            location_dim_path=LOCATION_DIM_PATH,
+            events_path=EVENTS_PATH,
+            geo_path=GEO_PATH if Path(GEO_PATH).exists() else None,
+        )
+        _LAST_LOAD_MODE.update({
+            "mode": "public_demo_fallback",
+            "warning": warning,
+        })
+        return frames
+
+    if bq_error:
+        raise bq_error
+    raise RuntimeError(
+        "No data source available. Configure BQ_PROJECT/BQ_DATASET or provide "
+        "data/location_dim.csv."
+    )
 
 
 def _local_cache_present() -> bool:
@@ -189,14 +232,39 @@ class AppState:
     recommender: Optional[ContentRecommender] = None
     geo: Optional[object] = None
     llm: Optional[LLMService] = None
+    enricher: Optional[LocationEnricher] = None
+    card_store: dict = {}
 
 
 state = AppState()
 
 
+def _load_card_store() -> dict:
+    """Load the prebuilt per-location card enrichment from disk (if present)."""
+    path = Path(CARD_STORE_PATH)
+    if not path.exists():
+        logger.warning(
+            "Card store %s not found — cards will use offline fallbacks. "
+            "Build it with: python -m scripts.build_location_cards", path,
+        )
+        return {}
+    try:
+        import json as _json
+        store = _json.loads(path.read_text(encoding="utf-8"))
+        logger.info("Loaded %d prebuilt location cards from %s", len(store), path)
+        return store if isinstance(store, dict) else {}
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Failed to read card store %s: %s", path, exc)
+        return {}
+
+
 @app.on_event("startup")
 def _startup() -> None:
     state.llm = LLMService()
+    state.enricher = LocationEnricher(
+        cache_path=os.getenv("ENRICH_CACHE_PATH", "data/enrich_cache.sqlite"),
+    )
+    state.card_store = _load_card_store()
     _rebuild_state(_load_frames())
     logger.info("Recommender ready. LLM enabled=%s, load_mode=%s",
                 state.llm.enabled, _LAST_LOAD_MODE["mode"])
@@ -223,9 +291,40 @@ def health() -> dict:
         "trending_locations":   0 if rec is None else int((rec._trending > 0).sum()),
         "session_pairs":        0 if rec is None else int(rec.session_coviz.jaccard.nnz),
         "transitions":          0 if rec is None else int(rec.transitions.transitions.nnz),
+        "feedback_guard":       (rec.feedback_guard if rec else {}),
         "data_quality":         (rec.data_quality if rec else {}),
         "engagement":           (f.engagement_report if f else {}),
     }
+
+
+@app.post("/api/outbound/click")
+def outbound_click(req: OutboundClickRequest) -> dict:
+    """Record recommender-origin outbound clicks separately from engagement.
+
+    These clicks are attribution/control data, not positive training labels.
+    The recommender reads this file on rebuild to correct for self-generated
+    popularity, and the UTM params let GA4/BigQuery filter the same traffic.
+    """
+    payload = req.model_dump()
+    event = {
+        "event_type": "outbound_click",
+        "ts": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "location_id": str(payload.get("location_id") or "").strip() or None,
+        "location_name": str(payload.get("location_name") or "").strip() or None,
+        "surface": str(payload.get("surface") or "unknown").strip() or "unknown",
+        "rank": payload.get("rank"),
+        "link_type": str(payload.get("link_type") or "").strip() or None,
+        "href": str(payload.get("href") or "").strip()[:1000] or None,
+    }
+    try:
+        path = Path(OUTBOUND_CLICKS_PATH)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(event, ensure_ascii=False) + "\n")
+    except OSError as exc:
+        logger.warning("Failed to record outbound click: %s", exc)
+        raise HTTPException(500, "Could not record outbound click.")
+    return {"ok": True}
 
 
 @app.post("/api/refresh")
@@ -517,12 +616,15 @@ def similar_users(user_key: Optional[str] = None, interests: Optional[str] = Non
     return {"similar_users": [s.model_dump() for s in sims]}
 
 
-def _pool_notice(pool_size: int, stops: int, used_client_pool: bool) -> str:
-    src = "your **Top picks**" if used_client_pool else "this request's recommendations"
-    return (
-        f"Every scheduled stop comes from {src} ({pool_size} data-ranked places) — "
-        f"AI only arranges **{stops}** of them into days; it does not add new venues."
+def _pool_notice(pool_size: int, pool_stops: int, ai_stops: int, used_client_pool: bool) -> str:
+    src = "your **Top picks**" if used_client_pool else "your recommendations"
+    msg = (
+        f"This plan is built around {src} ({pool_size} data-ranked places): "
+        f"**{pool_stops}** of them are scheduled into your days."
     )
+    if ai_stops:
+        msg += f" The AI also added **{ai_stops}** outside Chicago stop{'s' if ai_stops != 1 else ''} to round out the route."
+    return msg
 
 
 def _itinerary_response_from_plan(
@@ -536,13 +638,26 @@ def _itinerary_response_from_plan(
     recommendation_pool_size: int = 0,
     stops_from_pool: int = 0,
     used_client_pool: bool = False,
+    warehouse_by_id: Optional[Dict[str, Dict]] = None,
+    warehouse_by_name: Optional[Dict[str, str]] = None,
 ) -> ItineraryResponse:
+    warehouse_by_id = warehouse_by_id or {}
+    warehouse_by_name = warehouse_by_name or {}
+    card_store = state.card_store or {}
+    official_by_name = _official_site_by_name(card_store)
     days_payload = plan.get("days") or []
     days = [
         ItineraryDay(
             day_number=d["day_number"],
             theme=d["theme"],
-            stops=[ItineraryStop(**s) for s in d["stops"]],
+            stops=[
+                ItineraryStop(
+                    **_enrich_itinerary_stop_link(
+                        s, warehouse_by_id, warehouse_by_name, official_by_name,
+                    )
+                )
+                for s in d["stops"]
+            ],
             legs=[ItineraryLeg(**leg) for leg in d.get("legs", [])],
             narrative=d.get("narrative"),
             n_stops=d.get("n_stops", len(d["stops"])),
@@ -551,7 +666,10 @@ def _itinerary_response_from_plan(
     ]
     pool_n = recommendation_pool_size or pool_size_from_plan(plan)
     stops_n = stops_from_pool or count_scheduled_stops(days_payload)
-    pool_notice = _pool_notice(pool_n, stops_n, used_client_pool) if feasible and pool_n else None
+    ai_n = int(plan.get("ai_added_stops") or 0)
+    pool_notice = (
+        _pool_notice(pool_n, stops_n, ai_n, used_client_pool) if feasible and pool_n else None
+    )
     merged_notice = _join_itinerary_notices(notice, pool_notice)
 
     return ItineraryResponse(
@@ -583,7 +701,7 @@ def _disabled_itinerary_response(req: RecommendRequest) -> ItineraryResponse:
         user_key=req.user_key,
         trip_days=0,
         days=[],
-        summary="AI itinerary is off. Turn on **Plan my days with AI** to generate a schedule.",
+        summary="AI day plan is off. Turn on **Plan my days with AI** to generate a route.",
         notice=None,
         plan_mode=PLAN_AI,
         feasible=False,
@@ -624,7 +742,7 @@ def itinerary(req: RecommendRequest) -> ItineraryResponse:
             days=[],
             summary="Could not match your Top picks to schedule.",
             notice=(
-                "Run **Get recommendations** first, then **Build AI itinerary** "
+                "Run **Get recommendations** first, then **Build my AI day plan** "
                 "so we only arrange places you already saw."
             ),
             plan_mode=PLAN_AI,
@@ -636,7 +754,7 @@ def itinerary(req: RecommendRequest) -> ItineraryResponse:
     scheduling_pool = pool_results if used_client_pool else results
     pool_size = len(scheduling_pool)
 
-    candidates = recommendations_for_prompt(scheduling_pool)  # entire Top-picks pool
+    candidates = recommendations_for_prompt(scheduling_pool, geo=state.geo)  # entire Top-picks pool
     rec_by_id = {
         str(r["location_id"]): r
         for r in scheduling_pool
@@ -651,6 +769,8 @@ def itinerary(req: RecommendRequest) -> ItineraryResponse:
         inferred_interests=inferred,
         traveler_type=req.traveler_type,
         vibe=req.vibe,
+        free_text=req.free_text,
+        planner_note=req.planner_note,
     )
     source = str(llm_out.get("source") or "fallback")
     llm_notice = llm_out.get("notice")
@@ -667,7 +787,13 @@ def itinerary(req: RecommendRequest) -> ItineraryResponse:
         )
 
     plan = assemble_itinerary_plan(
-        llm_out, rec_by_id, state.geo, req.trip_days,
+        llm_out,
+        rec_by_id,
+        state.geo,
+        req.trip_days,
+        *build_location_indexes(
+            state.recommender.frames.locations if state.recommender else None
+        ),
     )
     if not plan.get("feasible"):
         return ItineraryResponse(
@@ -683,6 +809,9 @@ def itinerary(req: RecommendRequest) -> ItineraryResponse:
         )
 
     plan["recommendation_pool_size"] = pool_size
+    warehouse_by_id, warehouse_by_name = build_location_indexes(
+        state.recommender.frames.locations if state.recommender else None
+    )
     return _itinerary_response_from_plan(
         req,
         plan,
@@ -691,6 +820,8 @@ def itinerary(req: RecommendRequest) -> ItineraryResponse:
         recommendation_pool_size=pool_size,
         stops_from_pool=int(plan.get("stops_from_pool") or 0),
         used_client_pool=used_client_pool,
+        warehouse_by_id=warehouse_by_id,
+        warehouse_by_name=warehouse_by_name,
     )
 
 
@@ -709,6 +840,385 @@ def _warehouse_context(row: pd.Series) -> Dict[str, Any]:
 def _maps_search_url(location_name: str) -> str:
     q = quote_plus(f"{location_name}, Chicago, IL")
     return f"https://www.google.com/maps/search/?api=1&query={q}"
+
+
+# Image hosts we are willing to proxy. Strict allowlist prevents SSRF — the
+# proxy must never fetch arbitrary user-supplied URLs.
+_IMG_PROXY_HOSTS = frozenset({
+    "upload.wikimedia.org",
+    "api.openverse.org",
+})
+_IMG_FETCH_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+    ),
+    # Wikimedia 400s requests without these; real browsers always send them.
+    "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
+def _proxy_image_url(upstream: Optional[str]) -> Optional[str]:
+    """Rewrite a same-origin proxy URL so images load reliably in the browser."""
+    if not upstream:
+        return None
+    return "/api/img?u=" + quote_plus(upstream)
+
+
+@app.get("/api/img")
+def image_proxy(u: str = Query(..., description="Upstream image URL (allowlisted hosts only).")):
+    """Stream an allowlisted remote image same-origin.
+
+    Avoids client-side hotlink quirks (Wikimedia header rules), mixed-content,
+    and referrer issues by fetching server-side, where it works reliably.
+    """
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    host = (urllib.parse.urlparse(u).hostname or "").lower()
+    if host not in _IMG_PROXY_HOSTS:
+        raise HTTPException(400, "Image host not allowed.")
+    try:
+        req = urllib.request.Request(u, headers=_IMG_FETCH_HEADERS)
+        with urllib.request.urlopen(req, timeout=8.0) as resp:
+            data = resp.read(6_000_000)  # cap ~6 MB
+            ctype = resp.headers.get("Content-Type", "image/jpeg")
+    except (urllib.error.URLError, OSError, ValueError) as exc:
+        logger.info("image_proxy failed for %s: %s", u[:80], exc)
+        raise HTTPException(502, "Could not fetch image.")
+    if not ctype.startswith("image/"):
+        raise HTTPException(415, "Upstream is not an image.")
+    return Response(
+        content=data,
+        media_type=ctype,
+        headers={"Cache-Control": "public, max-age=604800"},  # 7 days
+    )
+
+
+CHICAGODOES_HOME = "https://www.chicagodoes.com/"
+# ChicagoDoes runs on mapme; each venue deep-links by its location_id (a UUID
+# that matches our warehouse location_id exactly).
+MAPME_LOCATION_BASE = "https://viewer.mapme.com/chicagodoesinteractivevideomaps/location/"
+
+
+def _looks_like_uuid(value: str) -> bool:
+    parts = value.split("-")
+    return len(value) == 36 and len(parts) == 5 and all(
+        c in "0123456789abcdefABCDEF" for c in value.replace("-", "")
+    )
+
+
+def _chicagodoes_url(location_id: str) -> Optional[str]:
+    """Deep link straight to this venue on the ChicagoDoes interactive map."""
+    lid = str(location_id or "").strip()
+    return MAPME_LOCATION_BASE + lid if _looks_like_uuid(lid) else None
+
+
+def _media_item_url(item: dict) -> Optional[str]:
+    """Resolve a stored media item to a browser-loadable URL (local files only for images)."""
+    if not item:
+        return None
+    f = item.get("file")
+    if f:
+        if item.get("type") == "video":
+            return f"/card-videos/{f}"
+        return f"/cards/{f}"
+    if item.get("type") == "video":
+        url = item.get("url")
+        if url:
+            host = (urlparse(str(url)).hostname or "").lower()
+            if "youtube" in host or host == "youtu.be" or host == "media.mapme.com":
+                return str(url)
+    return None
+
+
+def _media_item_key(media_type: str, url: str) -> str:
+    clean = str(url or "").strip()
+    parsed = urlparse(clean)
+    if parsed.scheme and parsed.netloc:
+        clean = f"{parsed.scheme.lower()}://{parsed.netloc.lower()}{parsed.path}"
+    return f"{str(media_type or '').lower()}::{clean.lower()}"
+
+
+def _append_unique_media(
+    media_items: List[CardMediaItem],
+    seen: set[str],
+    *,
+    media_type: str,
+    url: str,
+    source: Optional[str] = None,
+    attribution: Optional[str] = None,
+) -> None:
+    key = _media_item_key(media_type, url)
+    if key in seen:
+        return
+    seen.add(key)
+    media_items.append(CardMediaItem(
+        type=media_type,
+        url=url,
+        source=source,
+        attribution=attribution,
+    ))
+
+
+def _card_media_from_store(rec: Optional[dict]) -> Dict[str, Any]:
+    """Resolve local or proxied image/video URLs from a prebuilt card record."""
+    empty = {
+        "image_url": None,
+        "image_attribution": None,
+        "video_url": None,
+        "video_attribution": None,
+        "media_source": None,
+        "media_items": [],
+    }
+    if not rec:
+        return empty
+
+    media_items: List[CardMediaItem] = []
+    seen_media: set[str] = set()
+    for raw in rec.get("media_items") or []:
+        url = _media_item_url(raw)
+        if not url:
+            continue
+        _append_unique_media(
+            media_items,
+            seen_media,
+            media_type=str(raw.get("type") or "image"),
+            url=url,
+            source=raw.get("source"),
+            attribution=raw.get("attribution"),
+        )
+
+    if not media_items:
+        img_file = rec.get("image_file")
+        vid_file = rec.get("video_file")
+        attr = rec.get("image_attribution")
+        if vid_file:
+            _append_unique_media(
+                media_items,
+                seen_media,
+                media_type="video",
+                url=f"/card-videos/{vid_file}",
+                source=rec.get("video_source"),
+                attribution=attr,
+            )
+        elif rec.get("video_url"):
+            _append_unique_media(
+                media_items,
+                seen_media,
+                media_type="video",
+                url=str(rec["video_url"]),
+                source=rec.get("video_source"),
+                attribution=attr,
+            )
+        if img_file:
+            _append_unique_media(
+                media_items,
+                seen_media,
+                media_type="image",
+                url=f"/cards/{img_file}",
+                source=rec.get("image_source"),
+                attribution=attr,
+            )
+
+    first_image = next((m for m in media_items if m.type == "image"), None)
+    first_video = next((m for m in media_items if m.type == "video"), None)
+    attr = rec.get("image_attribution")
+    if first_video and first_video.attribution:
+        attr = first_video.attribution
+    elif first_image and first_image.attribution:
+        attr = first_image.attribution
+    return {
+        "image_url": first_image.url if first_image else None,
+        "image_attribution": attr,
+        "video_url": first_video.url if first_video else None,
+        "video_attribution": attr if first_video else None,
+        "media_source": rec.get("media_source") or rec.get("image_source"),
+        "media_items": media_items,
+    }
+
+
+def _card_media_for_location(location_id: str) -> Dict[str, Any]:
+    rec = (state.card_store or {}).get(str(location_id))
+    return _card_media_from_store(rec)
+
+
+def _card_link(location_id: str, location_name: str) -> tuple:
+    """The card title/photo always links to the venue's ChicagoDoes page."""
+    cd = _chicagodoes_url(location_id)
+    if cd:
+        return cd, "chicagodoes"
+    return CHICAGODOES_HOME, "chicagodoes"
+
+
+def _valid_http_url(url: Any) -> Optional[str]:
+    s = str(url or "").strip()
+    if s.lower().startswith(("http://", "https://")):
+        return s
+    return None
+
+
+def _warehouse_location_id(
+    location_id: str,
+    location_name: str,
+    warehouse_by_id: Dict[str, Dict],
+    warehouse_by_name: Dict[str, str],
+) -> Optional[str]:
+    """Return a warehouse id when this stop is in the ChicagoDoes location universe."""
+    lid = str(location_id or "").strip()
+    if lid and lid in warehouse_by_id:
+        return lid
+    nk = _norm_name(location_name)
+    if nk and nk in warehouse_by_name:
+        return warehouse_by_name[nk]
+    return None
+
+
+def _official_site_by_name(card_store: Dict[str, dict]) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for card in card_store.values():
+        site = _valid_http_url(card.get("official_site"))
+        if not site:
+            continue
+        nk = _norm_name(card.get("location_name"))
+        if nk and nk not in out:
+            out[nk] = site
+    return out
+
+
+def _card_store_id_by_name(card_store: Dict[str, dict]) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    for lid, card in card_store.items():
+        nk = _norm_name(card.get("location_name"))
+        if nk and nk not in out:
+            out[nk] = str(lid)
+    return out
+
+
+def _itinerary_stop_link(
+    stop: dict,
+    warehouse_by_id: Dict[str, Dict],
+    warehouse_by_name: Dict[str, str],
+    official_by_name: Dict[str, str],
+) -> tuple[Optional[str], Optional[str]]:
+    """Choose a link for an itinerary stop.
+
+    Top-picks stops always deep-link to ChicagoDoes. AI-added stops only link
+    when we can verify the place is in our warehouse (the ChicagoDoes universe);
+    otherwise we fall back to a prebuilt official site, or no link.
+    """
+    source = str(stop.get("source") or "recommended")
+    name = str(stop.get("location_name") or "")
+    lid = str(stop.get("location_id") or "").strip()
+
+    if source != "ai":
+        wh_id = _warehouse_location_id(lid, name, warehouse_by_id, warehouse_by_name)
+        if wh_id:
+            return _chicagodoes_url(wh_id), "chicagodoes"
+        cd = _chicagodoes_url(lid)
+        return cd or CHICAGODOES_HOME, "chicagodoes"
+
+    wh_id = _warehouse_location_id(lid, name, warehouse_by_id, warehouse_by_name)
+    if wh_id:
+        return _chicagodoes_url(wh_id), "chicagodoes"
+
+    official = official_by_name.get(_norm_name(name))
+    if official:
+        return official, "official"
+    return None, None
+
+
+def _enrich_itinerary_stop_link(
+    stop: dict,
+    warehouse_by_id: Dict[str, Dict],
+    warehouse_by_name: Dict[str, str],
+    official_by_name: Dict[str, str],
+) -> dict:
+    link_url, link_type = _itinerary_stop_link(
+        stop, warehouse_by_id, warehouse_by_name, official_by_name,
+    )
+    out = {**stop, "link_url": link_url, "link_type": link_type}
+    card_store = state.card_store or {}
+    card_by_name = _card_store_id_by_name(card_store)
+    lid = _warehouse_location_id(
+        str(stop.get("location_id") or "").strip(),
+        str(stop.get("location_name") or ""),
+        warehouse_by_id,
+        warehouse_by_name,
+    )
+    if not lid:
+        lid = card_by_name.get(_norm_name(stop.get("location_name")))
+    if lid:
+        media = _card_media_for_location(lid)
+        if media.get("image_url"):
+            out["image_url"] = media["image_url"]
+        if media.get("video_url"):
+            out["video_url"] = media["video_url"]
+        if media.get("media_items"):
+            out["media_items"] = [m.model_dump() for m in media["media_items"]]
+        if not out.get("location_id"):
+            out["location_id"] = lid
+    return out
+
+
+@app.post("/api/location/card", response_model=LocationCardResponse)
+def location_card(req: LocationCardRequest) -> LocationCardResponse:
+    """Per-card photo + one-line specialty blurb + best link.
+
+    Served from the LOCAL prebuilt store (data/location_cards.json + images)
+    with NO OpenAI or external calls — that work is done once, offline, by
+    `scripts/build_location_cards.py`. (Only the AI itinerary calls the LLM at
+    request time.)
+    """
+    if state.recommender is None:
+        raise HTTPException(503, "Service not ready.")
+
+    row = state.recommender.location_lookup(req.location_id)
+    if row is None:
+        raise HTTPException(404, f"Unknown location_id: {req.location_id}")
+
+    name = str(row["location_name"])
+    primary = row.get("primary_category")
+    cats = list(row.get("categories") or [])
+
+    rec = (state.card_store or {}).get(req.location_id)
+    media_items: List[CardMediaItem] = []
+    if rec is not None:
+        media = _card_media_from_store(rec)
+        image_url = media["image_url"]
+        image_attr = media["image_attribution"]
+        video_url = media["video_url"]
+        video_attr = media["video_attribution"]
+        media_source = media["media_source"]
+        media_items = media["media_items"]
+        blurb = rec.get("blurb") or _fallback_blurb(name, primary, cats)
+        blurb_source = rec.get("blurb_source", "fallback")
+    else:
+        image_url = None
+        image_attr = None
+        video_url = None
+        video_attr = None
+        media_source = None
+        blurb = _fallback_blurb(name, primary, cats)
+        blurb_source = "fallback"
+
+    link_url, link_type = _card_link(req.location_id, name)
+    return LocationCardResponse(
+        location_id=req.location_id,
+        location_name=name,
+        image_url=image_url,
+        image_attribution=image_attr,
+        video_url=video_url,
+        video_attribution=video_attr,
+        media_items=media_items,
+        blurb=blurb,
+        blurb_source=blurb_source,
+        link_url=link_url,
+        link_type=link_type,
+        media_source=media_source,
+    )
 
 
 @app.post("/api/location/info", response_model=LocationInfoResponse)
@@ -819,7 +1329,11 @@ def refine(req: RefineRequest) -> RefineResponse:
     if new_req.use_ai_itinerary:
         pool_ids = [c.location_id for c in rec_resp.recommendations if c.location_id]
         itin_req = new_req.model_copy(
-            update={"itinerary_pool_ids": pool_ids, "use_ai_itinerary": True},
+            update={
+                "itinerary_pool_ids": pool_ids,
+                "use_ai_itinerary": True,
+                "planner_note": req.instruction,
+            },
         )
         itin_resp = itinerary(itin_req)
     else:
@@ -865,8 +1379,13 @@ def _merge_delta(prev: RecommendRequest, delta: dict) -> RecommendRequest:
 
 
 # --------------------------------------------------------------------------- #
-# Static frontend
+# Static frontend + locally-stored card photos
 # --------------------------------------------------------------------------- #
+Path(CARD_IMAGES_DIR).mkdir(parents=True, exist_ok=True)
+Path(CARD_VIDEOS_DIR).mkdir(parents=True, exist_ok=True)
+app.mount("/cards", StaticFiles(directory=CARD_IMAGES_DIR), name="cards")
+app.mount("/card-videos", StaticFiles(directory=CARD_VIDEOS_DIR), name="card-videos")
+
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 

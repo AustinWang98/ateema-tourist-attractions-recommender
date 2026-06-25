@@ -20,9 +20,13 @@ Design (aligned with SKILL.md leakage guidance):
 """
 from __future__ import annotations
 
+import json
 import logging
+import os
 import re
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -70,6 +74,8 @@ TRANSITION_WEIGHT      = 0.4
 PROFILE_BLEND_ALPHA = 0.6       # behavioural vs. form weight when blending
 HOT_SPOT_BOOST = 0.05
 FAVORITE_BOOST = 0.03
+FEEDBACK_GUARD_STRENGTH = float(os.getenv("FEEDBACK_GUARD_STRENGTH", "0.08"))
+FEEDBACK_GUARD_WINDOW_DAYS = int(os.getenv("FEEDBACK_GUARD_WINDOW_DAYS", "30"))
 
 # MMR (Maximal Marginal Relevance) diversity. 1.0 = pure relevance (no
 # diversity), 0.0 = pure novelty. 0.7 means "70% of the picking signal
@@ -158,6 +164,7 @@ class ContentRecommender:
         # Session co-visit + transitions use engagement-qualified events only.
         self.session_coviz = SessionCoVisitation.build(ev_model, self._index.location_ids)
         self.transitions = TransitionGraph.build(ev_model, self._index.location_ids)
+        self._feedback_penalty, self.feedback_guard = self._build_feedback_penalty()
         # Validate the cleaned table against the raw events. Logs
         # warnings if anything diverges; report stays available for /api/health.
         self.data_quality = validate_cleaned_vs_raw(
@@ -166,12 +173,13 @@ class ContentRecommender:
         )
         logger.info(
             "ContentRecommender built: %d locations, TF-IDF dim=%d, "
-            "%d coviz pairs, %d clusters, %d trending scores",
+            "%d coviz pairs, %d clusters, %d trending scores, feedback_guard=%s",
             len(self._index.location_ids),
             self._index.tfidf_matrix.shape[1],
             int(self.coviz.jaccard.nnz),
             self.segmenter.k,
             int((self._trending > 0).sum()),
+            self.feedback_guard,
         )
 
     # ------------------------------------------------------------------ #
@@ -239,7 +247,16 @@ class ContentRecommender:
             and user_key
             and is_returning_user(self.frames, user_key)
         )
-        form_vec, inferred = self._build_form_profile(interests, traveler_type, vibe, free_text)
+        # Top-picks mode: if the visitor chose no interest tags and typed no
+        # free text, recommend the best Chicago places on popularity / quality /
+        # trending alone — do NOT infer a profile from vibe or traveler type.
+        has_tag_signal = bool(interests) or bool((free_text or "").strip())
+        if has_tag_signal:
+            form_vec, inferred = self._build_form_profile(
+                interests, traveler_type, vibe, free_text
+            )
+        else:
+            form_vec, inferred = None, []
 
         profile = self._blend_profiles(
             behavioural_vec, form_vec, self._index.tfidf_matrix.shape[1]
@@ -301,6 +318,7 @@ class ContentRecommender:
             + weights["session"]    * session_collab
             + HOT_SPOT_BOOST        * self._index.is_hot_spot
             + FAVORITE_BOOST        * self._index.is_favorite
+            - FEEDBACK_GUARD_STRENGTH * self._feedback_penalty
         )
 
         locations = self.frames.locations
@@ -319,12 +337,17 @@ class ContentRecommender:
         # against content similarity to already-picked items. This avoids
         # showing 10 picks that are all the same category, which the raw
         # score-sort tends to do once a category aligns with user intent.
+        selection_target = min(
+            int(mask.sum()) if mask.any() else len(locations),
+            max(top_k * 4, top_k + 20),
+        )
         order = self._mmr_select(
             final_masked,
-            top_k=top_k,
+            top_k=selection_target,
             mmr_lambda=MMR_LAMBDA,
-            candidate_pool=MMR_CANDIDATE_POOL,
+            candidate_pool=max(MMR_CANDIDATE_POOL, selection_target * 2),
         )
+        order = _unique_place_positions(locations, order, top_k)
 
         results: List[Dict] = []
         for pos in order:
@@ -346,6 +369,7 @@ class ContentRecommender:
                 "item_collab_score": float(item_collab[pos]),
                 "user_collab_score": float(user_collab[pos]),
                 "trending_score": float(trending[pos]),
+                "feedback_adjustment_score": float(-FEEDBACK_GUARD_STRENGTH * self._feedback_penalty[pos]),
                 "final_score": float(final_masked[pos]),
                 "evidence": self._build_evidence(row, trending[pos]),
                 "reason": self._explain(
@@ -354,6 +378,76 @@ class ContentRecommender:
             })
 
         return results, inferred, is_returning, archetype
+
+    def _build_feedback_penalty(self) -> Tuple[np.ndarray, Dict[str, object]]:
+        """Normalize recent outbound recommender clicks into a small penalty.
+
+        This is not used as engagement. It is a guardrail against the product
+        creating its own popularity signal and then treating that signal as
+        independent ChicagoDoes demand on the next model rebuild.
+        """
+        zeros = np.zeros(len(self._index.location_ids), dtype=float)
+        enabled = os.getenv("FEEDBACK_GUARD_ENABLED", "true").strip().lower() not in {
+            "0", "false", "no", "off",
+        }
+        raw_path = os.getenv("RECOMMENDER_OUTBOUND_CLICKS_PATH", "data/outbound_clicks.jsonl")
+        info: Dict[str, object] = {
+            "enabled": enabled,
+            "path": raw_path,
+            "window_days": FEEDBACK_GUARD_WINDOW_DAYS,
+            "strength": FEEDBACK_GUARD_STRENGTH,
+            "n_clicks": 0,
+            "n_locations": 0,
+        }
+        if not enabled:
+            return zeros, info
+
+        path = Path(raw_path)
+        if not path.exists():
+            return zeros, info
+
+        cutoff = datetime.now(timezone.utc) - timedelta(days=max(FEEDBACK_GUARD_WINDOW_DAYS, 1))
+        counts: Dict[str, int] = {}
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                for line in fh:
+                    try:
+                        event = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    lid = str(event.get("location_id") or "").strip()
+                    if lid not in self._index.id_to_pos:
+                        continue
+                    ts_raw = str(event.get("ts") or event.get("timestamp") or "").strip()
+                    if ts_raw:
+                        try:
+                            ts = datetime.fromisoformat(ts_raw.replace("Z", "+00:00"))
+                            if ts.tzinfo is None:
+                                ts = ts.replace(tzinfo=timezone.utc)
+                            if ts < cutoff:
+                                continue
+                        except ValueError:
+                            pass
+                    counts[lid] = counts.get(lid, 0) + 1
+        except OSError as exc:
+            logger.warning("Could not read feedback guard clicks from %s: %s", path, exc)
+            return zeros, info
+
+        if not counts:
+            return zeros, info
+
+        max_log = max(np.log1p(v) for v in counts.values())
+        penalty = zeros.copy()
+        for lid, count in counts.items():
+            pos = self._index.id_to_pos.get(lid)
+            if pos is not None and max_log > 0:
+                penalty[pos] = float(np.log1p(count) / max_log)
+
+        info.update({
+            "n_clicks": int(sum(counts.values())),
+            "n_locations": int(len(counts)),
+        })
+        return penalty, info
 
     def _mmr_select(
         self,
@@ -699,3 +793,44 @@ def _safe_str(v) -> Optional[str]:
         return None
     s = str(v).strip()
     return s or None
+
+
+def _canonical_place_key(name: object) -> str:
+    """Stable key for user-visible duplicate suppression.
+
+    The warehouse can contain several location_ids with the same display name
+    (for example chain branches or duplicated Mapme locations). Top Picks are a
+    user-facing slate, so identical visible names should appear only once.
+    """
+    text = str(name or "").lower().replace("&", " and ")
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def _unique_place_positions(
+    locations: pd.DataFrame,
+    order: Sequence[int],
+    top_k: int,
+) -> np.ndarray:
+    """Return ranked positions with unique ids and unique display names."""
+    seen_ids: set[str] = set()
+    seen_names: set[str] = set()
+    out: List[int] = []
+    for raw_pos in order:
+        pos = int(raw_pos)
+        if pos < 0 or pos >= len(locations):
+            continue
+        row = locations.iloc[pos]
+        lid = str(row.get("location_id") or "").strip()
+        name_key = _canonical_place_key(row.get("location_name"))
+        if lid and lid in seen_ids:
+            continue
+        if name_key and name_key in seen_names:
+            continue
+        out.append(pos)
+        if lid:
+            seen_ids.add(lid)
+        if name_key:
+            seen_names.add(name_key)
+        if len(out) >= top_k:
+            break
+    return np.array(out, dtype=int)

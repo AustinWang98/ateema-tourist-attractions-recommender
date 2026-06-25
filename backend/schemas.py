@@ -48,6 +48,13 @@ class RecommendRequest(BaseModel):
             "AI may only schedule stops from this pool (product: data first, AI second)."
         ),
     )
+    planner_note: Optional[str] = Field(
+        default=None,
+        description=(
+            "Internal: latest natural-language tweak (from /api/refine) woven into "
+            "the AI day plan so the itinerary reflects the user's exact request."
+        ),
+    )
 
 
 class LocationEvidence(BaseModel):
@@ -78,9 +85,24 @@ class LocationCard(BaseModel):
     user_collab_score: float = 0.0
     trending_score: float = 0.0
     session_collab_score: float = 0.0   # session co-visit + transition graph
+    feedback_adjustment_score: float = 0.0
     final_score: float = 0.0
     reason: Optional[str] = None
     evidence: LocationEvidence = Field(default_factory=LocationEvidence)
+
+
+class OutboundClickRequest(BaseModel):
+    """Client-side click attribution for links leaving this recommender.
+
+    These events are intentionally stored separately from model training
+    interactions so recommender-driven traffic can be filtered or corrected.
+    """
+    location_id: Optional[str] = None
+    location_name: Optional[str] = None
+    surface: str = "unknown"             # top_picks | ai_itinerary | other
+    rank: Optional[int] = None
+    link_type: Optional[str] = None       # chicagodoes | official
+    href: Optional[str] = None
 
 
 class Archetype(BaseModel):
@@ -120,6 +142,12 @@ class ItineraryStop(BaseModel):
     lat: Optional[float] = None
     lon: Optional[float] = None
     geo_source: Optional[str] = None
+    source: str = "recommended"     # "recommended" (from our model) | "ai" (added by the LLM)
+    link_url: Optional[str] = None
+    link_type: Optional[str] = None   # "chicagodoes" | "official"
+    image_url: Optional[str] = None
+    video_url: Optional[str] = None
+    media_items: List[CardMediaItem] = Field(default_factory=list)
 
 
 class ItineraryLeg(BaseModel):
@@ -175,6 +203,33 @@ class LocationInfoResponse(BaseModel):
     website_url: Optional[str] = None
     maps_search_url: Optional[str] = None
     source: str  # "llm" or "fallback"
+
+
+class LocationCardRequest(BaseModel):
+    """Lazy per-card enrichment: photo, one-line blurb, best external link."""
+    location_id: str
+
+
+class CardMediaItem(BaseModel):
+    type: str = "image"              # "image" | "video"
+    url: str
+    source: Optional[str] = None
+    attribution: Optional[str] = None
+
+
+class LocationCardResponse(BaseModel):
+    location_id: str
+    location_name: str
+    image_url: Optional[str] = None
+    image_attribution: Optional[str] = None
+    video_url: Optional[str] = None
+    video_attribution: Optional[str] = None
+    media_items: List[CardMediaItem] = Field(default_factory=list)
+    blurb: str = ""
+    blurb_source: str = "fallback"   # "llm" | "fallback"
+    link_url: str
+    link_type: str                   # "chicagodoes"
+    media_source: Optional[str] = None   # chicagodoes | wikipedia | openverse | official
 
 
 # --------------------------------------------------------------------------- #

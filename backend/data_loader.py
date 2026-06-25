@@ -18,7 +18,7 @@ import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -157,6 +157,50 @@ def load_warehouse(
     return WarehouseFrames(interactions=interactions, locations=locations, users=users, events=events)
 
 
+def load_public_demo_warehouse(
+    location_dim_path: str | os.PathLike[str],
+    events_path: str | os.PathLike[str] | None = None,
+    geo_path: str | os.PathLike[str] | None = None,
+) -> WarehouseFrames:
+    """Build deployable frames from public, non-secret CSVs.
+
+    This is a lightweight fallback for free hosting environments where the
+    private BigQuery feature table is not available. It keeps the official
+    ChicagoDoes location universe and event-time signals, but it cannot provide
+    the full user-location aggregate table used by production ranking.
+    """
+    dim_path = Path(location_dim_path)
+    if not dim_path.exists():
+        raise FileNotFoundError(f"location_dim CSV not found at {dim_path.resolve()}")
+
+    events: Optional[pd.DataFrame] = None
+    if events_path:
+        ev_path = Path(events_path)
+        if ev_path.exists():
+            events = _load_events(ev_path)
+
+    geo_df = None
+    if geo_path:
+        gp = Path(geo_path)
+        if gp.exists():
+            geo_df = pd.read_csv(gp)
+
+    observed_locations = _build_locations_from_events(events)
+    dim = pd.read_csv(dim_path)
+    if observed_locations.empty:
+        observed_locations = _minimal_locations_from_dim(dim)
+    locations = _expand_to_official_universe_from_df(observed_locations, dim, geo_df=geo_df)
+    interactions = _build_interactions_from_events(events)
+    users = _build_users_from_interactions(interactions)
+
+    logger.warning(
+        "Loaded public demo warehouse: %d interactions, %d locations, %d users, events=%s. "
+        "Set BigQuery env vars for the full production model.",
+        len(interactions), len(locations), len(users), len(events) if events is not None else "-",
+    )
+    return WarehouseFrames(interactions=interactions, locations=locations, users=users, events=events)
+
+
 def _expand_to_official_universe(
     observed_locations: pd.DataFrame,
     dim_path: Path,
@@ -256,6 +300,187 @@ def _load_events(path: Path) -> pd.DataFrame:
     logger.info("Loading event-level CSV from %s", path)
     ev = pd.read_csv(path, low_memory=False)
     return _normalise_events(ev)
+
+
+def _build_locations_from_events(events: Optional[pd.DataFrame]) -> pd.DataFrame:
+    if events is None or events.empty or "location_id" not in events.columns:
+        return pd.DataFrame()
+
+    ev = events.dropna(subset=["location_id"]).copy()
+    ev["location_id"] = ev["location_id"].astype(str).str.strip()
+    ev = ev[ev["location_id"] != ""]
+    if ev.empty:
+        return pd.DataFrame()
+
+    if "interaction_weight" not in ev.columns:
+        ev["interaction_weight"] = 0.5
+    ev["interaction_weight"] = pd.to_numeric(ev["interaction_weight"], errors="coerce").fillna(0.5)
+    if "engagement_time_msec_capped" not in ev.columns:
+        ev["engagement_time_msec_capped"] = 0.0
+    ev["engagement_time_msec_capped"] = pd.to_numeric(
+        ev["engagement_time_msec_capped"], errors="coerce",
+    ).fillna(0.0)
+
+    rows = []
+    for lid, g in ev.groupby("location_id", dropna=True):
+        cats = _event_categories(g)
+        primary = _most_common(g.get("primary_category"))
+        if not primary and cats:
+            primary = cats[0]
+        user_series = _clean_string_series(g.get("user_key"))
+        session_series = _clean_string_series(g.get("session_key"))
+        event_name = _clean_string_series(g.get("event_name")).str.lower()
+        action_id = _clean_string_series(g.get("action_id")).str.lower()
+        rows.append({
+            "location_id": lid,
+            "location_name": _first_non_empty(g.get("location_name")) or lid,
+            "primary_category": primary,
+            "categories": cats,
+            "num_categories": len(cats),
+            "is_hot_spot_location": int(_numeric_series(g, "is_hot_spot_location").max()),
+            "is_favorite_location": int(_numeric_series(g, "is_favorite_location").max()),
+            "total_location_interactions_all_users": int(len(g)),
+            "distinct_users_interacted_location": int(user_series[user_series != ""].nunique()),
+            "distinct_sessions_interacted_location": int(session_series[session_series != ""].nunique()),
+            "total_location_score_all_users": float(g["interaction_weight"].sum()),
+            "avg_location_score_all_users": float(g["interaction_weight"].mean()),
+            "total_marker_clicks_all_users": int(((event_name == "map-user-action") | action_id.str.contains("marker", na=False)).sum()),
+            "total_detail_cta_all_users": int(action_id.str.contains("detail|cta", na=False).sum()),
+            "total_location_engagement_all_users_msec_capped": float(g["engagement_time_msec_capped"].sum()),
+            "avg_location_engagement_all_users_msec_capped": float(g["engagement_time_msec_capped"].mean()),
+        })
+
+    out = pd.DataFrame(rows)
+    out["popularity_raw"] = out["total_location_score_all_users"].fillna(0.0)
+    out["popularity_norm"] = _min_max_normalise(out["popularity_raw"])
+    out["engagement_norm"] = _min_max_normalise(out["avg_location_engagement_all_users_msec_capped"].fillna(0.0))
+    return out.reset_index(drop=True)
+
+
+def _minimal_locations_from_dim(dim: pd.DataFrame) -> pd.DataFrame:
+    out = dim[["location_id", "location_name"]].copy()
+    out["primary_category"] = "Attractions"
+    out["categories"] = [["Attractions"] for _ in range(len(out))]
+    out["num_categories"] = 1
+    for col in [
+        "is_hot_spot_location",
+        "is_favorite_location",
+        "total_location_interactions_all_users",
+        "distinct_users_interacted_location",
+        "distinct_sessions_interacted_location",
+        "total_location_score_all_users",
+        "avg_location_score_all_users",
+        "total_marker_clicks_all_users",
+        "total_detail_cta_all_users",
+        "total_location_engagement_all_users_msec_capped",
+        "avg_location_engagement_all_users_msec_capped",
+        "popularity_raw",
+        "popularity_norm",
+        "engagement_norm",
+    ]:
+        out[col] = 0
+    return out
+
+
+def _build_interactions_from_events(events: Optional[pd.DataFrame]) -> pd.DataFrame:
+    cols = [
+        "user_key", "location_id", "location_name", "primary_category", "categories",
+        "total_interactions_with_location", "total_interaction_score",
+        "avg_interaction_score", "total_location_engagement_msec_capped",
+        "first_interaction_time", "last_interaction_time",
+    ]
+    if events is None or events.empty or not {"user_key", "location_id"}.issubset(events.columns):
+        return pd.DataFrame(columns=cols)
+
+    ev = events.dropna(subset=["user_key", "location_id"]).copy()
+    ev["user_key"] = ev["user_key"].astype(str).str.strip()
+    ev["location_id"] = ev["location_id"].astype(str).str.strip()
+    ev = ev[(ev["user_key"] != "") & (ev["location_id"] != "")]
+    if ev.empty:
+        return pd.DataFrame(columns=cols)
+    if "interaction_weight" not in ev.columns:
+        ev["interaction_weight"] = 0.5
+    ev["interaction_weight"] = pd.to_numeric(ev["interaction_weight"], errors="coerce").fillna(0.5)
+    if "engagement_time_msec_capped" not in ev.columns:
+        ev["engagement_time_msec_capped"] = 0.0
+    ev["engagement_time_msec_capped"] = pd.to_numeric(
+        ev["engagement_time_msec_capped"], errors="coerce",
+    ).fillna(0.0)
+
+    rows = []
+    for (user_key, lid), g in ev.groupby(["user_key", "location_id"], dropna=True):
+        rows.append({
+            "user_key": user_key,
+            "location_id": lid,
+            "location_name": _first_non_empty(g.get("location_name")) or lid,
+            "primary_category": _most_common(g.get("primary_category")),
+            "categories": _event_categories(g),
+            "total_interactions_with_location": int(len(g)),
+            "total_interaction_score": float(g["interaction_weight"].sum()),
+            "avg_interaction_score": float(g["interaction_weight"].mean()),
+            "total_location_engagement_msec_capped": float(g["engagement_time_msec_capped"].sum()),
+            "first_interaction_time": g["event_time"].min() if "event_time" in g.columns else None,
+            "last_interaction_time": g["event_time"].max() if "event_time" in g.columns else None,
+        })
+    return pd.DataFrame(rows, columns=cols).reset_index(drop=True)
+
+
+def _build_users_from_interactions(interactions: pd.DataFrame) -> pd.DataFrame:
+    if interactions.empty:
+        return pd.DataFrame(columns=[
+            "user_key", "total_user_interactions", "distinct_locations_interacted",
+            "total_user_interaction_score", "avg_user_interaction_score",
+        ])
+    return (
+        interactions.groupby("user_key", as_index=False)
+        .agg(
+            total_user_interactions=("total_interactions_with_location", "sum"),
+            distinct_locations_interacted=("location_id", "nunique"),
+            total_user_interaction_score=("total_interaction_score", "sum"),
+            avg_user_interaction_score=("avg_interaction_score", "mean"),
+        )
+    )
+
+
+def _event_categories(g: pd.DataFrame) -> List[str]:
+    found: Dict[str, None] = {}
+    if "location_category_name" in g.columns:
+        for raw in g["location_category_name"].dropna().tolist():
+            for cat in _split_category_string(raw):
+                found.setdefault(cat, None)
+    if "primary_category" in g.columns:
+        for cat in g["primary_category"].dropna().astype(str).str.strip().tolist():
+            if cat:
+                found.setdefault(cat, None)
+    return list(found.keys())
+
+
+def _clean_string_series(series: Optional[pd.Series]) -> pd.Series:
+    if series is None:
+        return pd.Series(dtype=str)
+    return series.fillna("").astype(str).str.strip()
+
+
+def _numeric_series(frame: pd.DataFrame, col: str, default: float = 0.0) -> pd.Series:
+    if col not in frame.columns:
+        return pd.Series([default] * len(frame), index=frame.index, dtype=float)
+    return pd.to_numeric(frame[col], errors="coerce").fillna(default)
+
+
+def _first_non_empty(series: Optional[pd.Series]) -> Optional[str]:
+    cleaned = _clean_string_series(series)
+    cleaned = cleaned[cleaned != ""]
+    if cleaned.empty:
+        return None
+    return str(cleaned.iloc[0])
+
+
+def _most_common(series: Optional[pd.Series]) -> Optional[str]:
+    cleaned = _clean_string_series(series)
+    cleaned = cleaned[cleaned != ""]
+    if cleaned.empty:
+        return None
+    return str(cleaned.value_counts().index[0])
 
 
 def _normalise_events(ev: pd.DataFrame) -> pd.DataFrame:

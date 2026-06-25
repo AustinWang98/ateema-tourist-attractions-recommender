@@ -6,6 +6,12 @@
 # Caches
 .firecrawl/
 data/llm_cache.sqlite
+data/enrich_cache.sqlite
+data/firecrawl_cache/
+data/location_images/
+data/location_videos/
+data/missing_media_backfill.log
+data/outbound_clicks.jsonl
 __pycache__/
 *.pyc
 .venv/
