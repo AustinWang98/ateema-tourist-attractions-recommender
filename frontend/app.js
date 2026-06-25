@@ -278,17 +278,15 @@ function wireForm() {
 
 function wireOnboarding() {
   $("#start-personalize")?.addEventListener("click", () => {
-    activateExperience();
     showProfileWizard();
   });
 
   $("#start-top")?.addEventListener("click", async () => {
-    activateExperience();
     syncTopCount($("#quick_top_k")?.value || DEFAULT_TOP_K);
     resetPreferences();
     hideProfilePanel();
     hideProfileWizard();
-    await runRecommend({ source: "instant" });
+    await runRecommend({ source: "instant", activateOnSuccess: true });
   });
 
   $("#edit-profile")?.addEventListener("click", () => {
@@ -397,6 +395,7 @@ function wireProfileWizard() {
   $("#wizard-next")?.addEventListener("click", () => wizardGo(1));
   $("#wizard-finish")?.addEventListener("click", async () => {
     syncProfileFromWizard();
+    activateExperience();
     hideProfileWizard();
     showProfilePanel({ scroll: false });
     await runRecommend({ source: "wizard" });
@@ -418,7 +417,6 @@ function showProfileWizard() {
   state.wizardStep = 0;
   syncWizardFromProfile();
   updateWizard();
-  $("#profile-wizard")?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function hideProfileWizard() {
@@ -670,6 +668,9 @@ async function runRecommend(options = {}) {
     const data = await r.json();
     state.lastRecommendations = data;
     renderRecommendations(data);
+    if (options.activateOnSuccess) {
+      activateExperience();
+    }
     if (!$("#use_ai_itinerary").checked) {
       clearItinerary();
     }

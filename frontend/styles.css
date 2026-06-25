@@ -65,6 +65,12 @@ body.is-landing {
   overflow: hidden;
 }
 
+body.is-landing .app-shell {
+  height: calc(100vh - 70px);
+  min-height: calc(100vh - 70px);
+  overflow: hidden;
+}
+
 button,
 input,
 select,
@@ -467,6 +473,11 @@ body.is-landing .hero__lede {
   padding: 22px;
   position: relative;
   backdrop-filter: blur(18px);
+}
+
+body.is-landing .profile-wizard {
+  max-height: calc(100vh - 112px);
+  overflow: auto;
 }
 
 .wizard__top {
@@ -2245,8 +2256,17 @@ body:not(.is-landing) .refine {
     min-height: 720px;
   }
 
+  body.is-landing .hero {
+    min-height: calc(100vh - 70px);
+  }
+
   .hero__content {
     padding-top: 58px;
+  }
+
+  body.is-landing .hero__content {
+    min-height: calc(100vh - 70px);
+    padding-top: 24px;
   }
 
   .hero h1 {
