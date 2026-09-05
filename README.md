@@ -1,24 +1,31 @@
 # Ateema Tourist Attractions Recommender
 
-A full-stack Chicago place recommender with a FastAPI backend and a browser
-frontend. Visitors can ask for immediate popular picks or provide preferences
-for a more personalized list and itinerary.
+A full-stack Chicago attractions recommender with a FastAPI backend and a
+browser-based frontend. Visitors can browse popular places immediately or share
+their interests to receive personalized recommendations and an itinerary.
 
-This public edition runs entirely from a deterministic synthetic event fixture.
-It contains no production credentials, visitor identifiers, session histories,
-private analytics exports, or internal operating records. The final academic
-paper and presentation are published intact, including their historical
-technical narrative, authorship, and reported results.
+## Public data and privacy
+
+Due to data privacy requirements, the public version of this project uses
+deterministic synthetic/demo data rather than the original production dataset
+used during the capstone. The replacement follows the same schema and exercises
+the same application workflows; the system architecture, BigQuery SQL and
+schemas, recommendation algorithms, and evaluation tooling remain intact.
+
+The public repository contains no production credentials, visitor identifiers,
+session histories, private analytics exports, or internal operating records.
+The final academic paper and presentation are published unchanged, preserving
+their original technical narrative, authorship, and reported results.
 
 ## Internal handoff access
 
-This repository is the public technical and academic edition. Authorized
-project stakeholders who need the complete operational handoff documentation,
-original or private data exports, deployment details, private environment
-configuration, or internal repository history should contact Austin Wang at
-[yiouwang@uchicago.edu](mailto:yiouwang@uchicago.edu) to request access to the
-private internal repository. Do not post credentials or visitor-level data in
-public issues.
+This repository is intended for public technical review, reproducibility, and
+academic reference. Authorized project stakeholders who need the complete
+operational handoff documentation, original or private data exports, deployment
+details, private environment configuration, or internal repository history can
+request access to the private internal repository by contacting Austin Wang at
+[yiouwang@uchicago.edu](mailto:yiouwang@uchicago.edu). Please do not post
+credentials or visitor-level data in public issues.
 
 ## Features
 
