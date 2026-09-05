@@ -1,87 +1,148 @@
 # Ateema Tourist Attractions Recommender
 
-A full-stack Chicago attractions recommender with a FastAPI backend and a
-browser-based frontend. Visitors can browse popular places immediately or share
-their interests to receive personalized recommendations and an itinerary.
+**From behavioral signals to a personalized day in Chicago.**
 
-## Public data and privacy
+An end-to-end recommendation system built for Ateema's ChicagoDoes catalog. It
+turns GA4-style interactions and curated place data into ranked, diverse
+recommendations, then delivers them through a FastAPI backend, a browser-based
+product experience, and an optional AI itinerary layer.
 
-Due to data privacy requirements, the public version of this project uses
-deterministic synthetic/demo data rather than the original production dataset
-used during the capstone. The replacement follows the same schema and exercises
-the same application workflows; the system architecture, BigQuery SQL and
-schemas, recommendation algorithms, and evaluation tooling remain intact.
+[![CI](https://github.com/AustinWang98/ateema-tourist-attractions-recommender/actions/workflows/ci.yml/badge.svg)](https://github.com/AustinWang98/ateema-tourist-attractions-recommender/actions/workflows/ci.yml)
+![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
+![BigQuery](https://img.shields.io/badge/Google_BigQuery-Warehouse-4285F4?logo=googlebigquery&logoColor=white)
+![Public data](https://img.shields.io/badge/Public_Data-Synthetic-2E7D32)
 
-The public repository contains no production credentials, visitor identifiers,
-session histories, private analytics exports, or internal operating records.
-The final academic paper and presentation are published unchanged, preserving
-their original technical narrative, authorship, and reported results.
+[Read the final paper](docs/paper/ChicagoDoes_Capstone_Paper.pdf) ·
+[Open the presentation](docs/presentation/ChicagoDoes_Final_Presentation.pptx) ·
+[Explore the BigQuery warehouse](warehouse/README.md) ·
+[Run it locally](#run-locally)
 
-## Internal handoff access
+![ChicagoDoes Recommender landing page with personalization controls and a 350-place catalog](docs/readme/product-overview.jpg)
 
-This repository is intended for public technical review, reproducibility, and
-academic reference. Authorized project stakeholders who need the complete
-operational handoff documentation, original or private data exports, deployment
-details, private environment configuration, or internal repository history can
-request access to the private internal repository by contacting Austin Wang at
-[yiouwang@uchicago.edu](mailto:yiouwang@uchicago.edu). Please do not post
-credentials or visitor-level data in public issues.
+*Capstone product interface. The public repository runs the same product and
+ranking pipeline with deterministic synthetic/demo data.*
 
-## Features
+> **Public release note:** Due to data privacy requirements, the public version
+> of this project uses synthetic/demo data rather than the original production
+> dataset used during the capstone. The substitution changes the data source,
+> not the system's complexity: the BigQuery SQL and schemas, ranking algorithms,
+> evaluation tooling, API, frontend, paper, and presentation remain available.
 
-- Hybrid ranking with content similarity, popularity, collaborative signals,
-  session behavior, trending, and diversity re-ranking
-- Guided cold-start preferences for visitors without prior history
-- Media-rich recommendation cards and Chicago map coordinates
-- Optional OpenAI-compatible itinerary generation with a deterministic fallback
-- Synthetic demo data that can be regenerated and audited
-- Six-stage BigQuery transformation pipeline with schemas and public seeds
-- Leakage-safe offline evaluation, weight search, cross-validation, and MLflow
-- Final paper PDF and the team's editable Word manuscript
-- Complete final PowerPoint deck, generation source, and visual assets
-- Reproducible paper source, figures, and algorithm diagrams
+## Why this project stands out
 
-## Repository layout
+- **End-to-end scope:** data modeling, feature engineering, recommendation
+  logic, API design, frontend delivery, evaluation, and deployment live in one
+  reproducible repository.
+- **Real recommender-system constraints:** the design addresses sparse implicit
+  feedback, anonymous and cold-start visitors, short sessions, popularity bias,
+  temporal behavior, and repetitive top-K results.
+- **Measured product tradeoffs:** relevance is evaluated alongside coverage and
+  diversity instead of optimizing a single offline score.
+- **Responsible public release:** the technical implementation stays complete
+  while credentials and visitor-level production records remain private.
 
-```text
-backend/                    FastAPI application and recommendation engine
-frontend/                   Browser interface and static assets
-data/
-  demo_events.csv           Deterministic synthetic interactions
-  location_dim.csv          Public place catalog
-  locations_geo.csv         Place coordinates
-  location_cards.json       Public card metadata
-  *_results.csv             Complete aggregate evaluation and tuning results
-warehouse/
-  sql/                      Six BigQuery transformation stages
-  schemas/                  Eight table schemas
-  seeds/                    Non-personal dimension seeds
-  run_pipeline.py           Parameterized BigQuery rebuild utility
-docs/
-  paper/                    Final PDF, Word manuscript, LaTeX, and figures
-  presentation/             Final PowerPoint, builder, and assets
-scripts/
-  generate_demo_events.py   Rebuilds the synthetic fixture
-  build_location_cards.py   Rebuilds card metadata
-  enrich_geocode_firecrawl.py
-  evaluate_engagement_impact.py
-tests/                      Unit and privacy checks
-```
+## Project at a glance
 
-## Recommendation architecture
+| Area | What is included |
+| --- | --- |
+| Product | Guided preference flow, immediate popular picks, recommendation explanations, rich place cards, and day itineraries |
+| Catalog | 350 Chicago places with canonical IDs, categories, coordinates, media metadata, and map links |
+| Data engineering | Six-stage BigQuery transformation pipeline, eight JSON schemas, public dimension seeds, and a parameterized runner |
+| Ranking | Six-signal hybrid score, separate new/returning-user weights, cold-start profiles, and MMR diversity re-ranking |
+| Evaluation | Temporal holdout, baseline comparison, randomized weight search, five-fold validation, diversity analysis, and optional MLflow tracking |
+| Engineering | Python 3.11, FastAPI, pandas, scikit-learn, vanilla JavaScript/CSS, Docker, Render configuration, and GitHub Actions |
+| Public fixture | 1,920 deterministic events across 80 synthetic users, exercising the same 350-place application surface |
 
-The ranker blends TF-IDF content similarity, global popularity and engagement,
-item co-visitation, returning-user neighbors, session co-visitation, transition
-probabilities, and event-time trending. Maximal Marginal Relevance then balances
-relevance against category diversity. Cold-start visitors receive a profile
-constructed from selected interests and optional free text. Recommendation
-traffic is tagged and separately logged so it can be excluded or down-weighted
-during later model refreshes.
+## System architecture
 
-The complete implementation remains under `backend/`. The public/private split
-changes data sources and identifiers, not the ranking architecture.
+The system carries information from analytics events to warehouse features,
+ranking signals, diversified results, and finally the user-facing application.
+The browser never queries BigQuery directly.
+
+![Architecture from GA4-style events through BigQuery, hybrid ranking, FastAPI, and the frontend](docs/paper/figures/architecture.png)
+
+The end-to-end flow is:
+
+1. Parse and qualify GA4-style interaction events.
+2. Build user-location features and catalog dimensions in BigQuery.
+3. Generate content, popularity, collaborative, session, transition, and
+   trending signals.
+4. Blend signals with weights that change for new and returning visitors.
+5. Apply Maximal Marginal Relevance (MMR) to balance relevance and variety.
+6. Return explainable recommendations and an optional itinerary through the
+   FastAPI application.
+
+## How the recommender works
+
+| Signal | Role in the final ranking |
+| --- | --- |
+| Content similarity | TF-IDF cosine similarity between a visitor profile and location-category tokens |
+| Popularity | Leakage-safe distinct-user and engagement priors |
+| Item-item collaborative filtering | Sparse co-visitation similarity between places |
+| User-user neighbors | Category-profile similarity for returning visitors |
+| Session and transition behavior | Same-session co-visitation plus observed previous-to-next movement |
+| Trending | Recent engagement rate compared with an earlier time window |
+| MMR re-ranking | Diversifies the final list so one category does not dominate |
+
+Cold-start visitors are not forced into a popularity-only experience. Their
+selected interests, traveler type, vibe, and optional free text create a TF-IDF
+pseudo-profile and a behavioral archetype that can seed collaborative scoring.
+
+The optional LLM is intentionally a presentation layer: deterministic ranking
+selects the places first, and the model turns that approved pool into readable
+itinerary text. If no API key is configured, the application returns a
+deterministic itinerary instead.
+
+## Evaluation highlights
+
+The values below are preserved aggregate results from the original capstone
+evaluation. The synthetic public fixture makes the workflow runnable, but it is
+not presented as production evidence.
+
+| Experiment | Recorded result |
+| --- | --- |
+| Randomized weight search | 4,004 evaluated configurations retained for audit and comparison |
+| Five-fold robust validation | Held-out NDCG@20 increased from 0.2479 to 0.2557 (+3.2%); the tuned configuration won 3 of 5 folds |
+| MMR diversity study | Intra-list diversity increased from 0.2769 to 0.6038, with the relevance tradeoff explicitly recorded (NDCG@10: 0.2559 to 0.2402) |
+
+Explore the evidence in
+[`weight_search_results.csv`](data/weight_search_results.csv),
+[`weight_cv_results.csv`](data/weight_cv_results.csv),
+[`best_weights.json`](data/best_weights.json), and
+[`robust_weights.json`](data/robust_weights.json).
+
+## Engineering decisions worth exploring
+
+- **Feedback-loop guard:** recommender-origin clicks are logged separately and
+  can be excluded or down-weighted during future model refreshes.
+- **Leakage-aware features:** global priors are separated from per-user history,
+  and evaluation uses time-aware holdouts.
+- **Authoritative catalog:** all 350 official places remain eligible, including
+  locations with no observed clicks.
+- **Graceful degradation:** the product runs without BigQuery credentials or an
+  LLM key by falling back to checked-in demo data and deterministic planning.
+- **Explainable delivery:** the API exposes the evidence behind ranked cards
+  instead of returning opaque scores alone.
+
+## Repository tour
+
+| Path | Start here for |
+| --- | --- |
+| [`backend/recommender.py`](backend/recommender.py) | Hybrid score construction, user regimes, cold start, and MMR |
+| [`backend/collab.py`](backend/collab.py) | Item co-visitation and user-neighbor models |
+| [`backend/behavior.py`](backend/behavior.py) | Session co-visitation and transition signals |
+| [`backend/main.py`](backend/main.py) | FastAPI lifecycle, data-source selection, and product endpoints |
+| [`warehouse/sql/`](warehouse/sql/) | Complete six-stage BigQuery transformation logic |
+| [`warehouse/schemas/`](warehouse/schemas/) | Eight deployable table schemas |
+| [`frontend/`](frontend/) | Responsive browser experience and recommendation UI |
+| [`backend/evaluation_runner.py`](backend/evaluation_runner.py) | Temporal holdout and baseline evaluation |
+| [`backend/weight_search_cv.py`](backend/weight_search_cv.py) | Five-fold robust weight validation |
+| [`docs/`](docs/) | Final paper, presentation, editable sources, figures, and diagrams |
 
 ## Run locally
+
+The public edition works without external credentials:
 
 ```bash
 python3 -m venv .venv
@@ -91,28 +152,20 @@ cp .env.example .env
 uvicorn backend.main:app --reload --port 8000
 ```
 
-Open <http://localhost:8000>.
+Open <http://localhost:8000>. The default configuration loads
+`data/demo_events.csv`; every identity begins with `synthetic-user-`, and every
+demo URL uses the reserved `.invalid` domain.
 
-The default configuration loads `data/demo_events.csv`. Every identity begins
-with `synthetic-user-`, every session derives from a synthetic identity, and
-every demo URL uses the reserved `.invalid` domain.
-
-Regenerate and verify the fixture:
+Regenerate and verify the public fixture:
 
 ```bash
 python scripts/generate_demo_events.py
 python -m pytest tests/test_demo_fixture.py
 ```
 
-## Configuration
+## Connect a private BigQuery deployment
 
-Copy `.env.example` to `.env`. The app works without external credentials.
-
-For optional LLM itineraries, set `OPENAI_API_KEY`, `OPENAI_BASE_URL`, and
-`OPENAI_MODEL`. Keep real values in the deployment platform's secret manager,
-never in source control.
-
-For a private BigQuery deployment, set:
+Copy `.env.example` to `.env` and configure approved project resources:
 
 ```text
 BQ_PROJECT=your-project-id
@@ -122,89 +175,84 @@ BQ_TABLE_LOCATION_DIM=location_dim
 BQ_TABLE_EVENTS=user_location_category_events
 ```
 
-The browser never queries BigQuery directly. The server reads configured tables
-at startup and builds its in-memory ranking indexes.
-
-The full parameterized warehouse is documented in
-[`warehouse/README.md`](warehouse/README.md). Its SQL retains user/session field
-logic and table relationships, while project and dataset identifiers are generic
-placeholders. No production rows are included.
-
-## Paper and presentation
-
-The complete capstone materials are available directly in the repository:
-
-- [`docs/paper/ChicagoDoes_Capstone_Paper.pdf`](docs/paper/ChicagoDoes_Capstone_Paper.pdf)
-- [`docs/paper/ChicagoDoes_Capstone_Paper.docx`](docs/paper/ChicagoDoes_Capstone_Paper.docx)
-- [`docs/presentation/ChicagoDoes_Final_Presentation.pptx`](docs/presentation/ChicagoDoes_Final_Presentation.pptx)
-
-Their source material is included beside them: the full LaTeX manuscript,
-paper figures and diagram generator, presentation builder, formula images,
-branding assets, and screenshots. These academic deliverables are preserved
-unchanged from the team edition.
-
-## Evaluation tooling
-
-The repository retains the temporal holdout evaluator, randomized weight search,
-five-fold validation, engagement-policy comparison, and optional MLflow tracking.
-The checked-in historical tuning artifacts are aggregate and non-identifying,
-including the complete randomized-search results, cross-validation summary,
-selected weights, and offline evaluation table. Use an approved private export
-under `data/private/` to reproduce the historical measurements, or use the
-synthetic fixture to exercise the pipeline without credentials.
+The parameterized warehouse runner can rebuild the public template without
+hard-coded infrastructure identifiers:
 
 ```bash
+python warehouse/run_pipeline.py \
+  --project your-project-id \
+  --dataset analytics_demo \
+  --create-dataset \
+  --load-seeds \
+  --include-candidates
+```
+
+See [`warehouse/README.md`](warehouse/README.md) for the full stage-by-stage
+runbook.
+
+## Reproduce the evaluation workflow
+
+```bash
+pip install -r requirements-ml.txt
 python -m backend.evaluation_runner --events data/demo_events.csv
 python -m backend.weight_search --events data/demo_events.csv
 python -m backend.weight_search_cv --events data/demo_events.csv
 python scripts/evaluate_engagement_impact.py
 ```
 
-## API
+## API surface
 
 | Method | Path | Purpose |
 | --- | --- | --- |
 | `GET` | `/api/health` | Service and data-source status |
-| `GET` | `/api/categories` | Available categories |
-| `GET` | `/api/trending?limit=N` | Trending places |
-| `POST` | `/api/recommend` | Ranked recommendations |
-| `POST` | `/api/itinerary` | AI or deterministic itinerary |
-| `POST` | `/api/location/info` | Place details |
+| `GET` | `/api/categories` | Available recommendation categories |
+| `GET` | `/api/trending?limit=N` | Time-aware trending places |
+| `POST` | `/api/recommend` | Ranked and explained recommendations |
+| `POST` | `/api/itinerary` | AI-assisted or deterministic itinerary |
+| `POST` | `/api/location/info` | Place details and media |
 | `POST` | `/api/explain` | Recommendation explanation |
-| `POST` | `/api/refine` | Natural-language itinerary update |
+| `POST` | `/api/refine` | Natural-language itinerary refinement |
 | `POST` | `/api/outbound/click` | Separate recommendation click log |
 | `POST` | `/api/refresh` | Reload configured data sources |
 
-## Privacy and security
+## Paper and presentation
 
-The checked-in fixture is synthetic and intentionally omits production visitor
-fields such as GA4 pseudonymous IDs, account IDs, device fingerprints, location
-history, and raw referrers. Private exports belong under `data/private/`, which
-is ignored by Git. BigQuery schemas may name these fields because the warehouse
-must define them, but the repository contains no production values.
+The complete academic deliverables are published unchanged from the team
+edition:
 
-See [PRIVACY.md](PRIVACY.md) for the public-data boundary and
-[SECURITY.md](SECURITY.md) for vulnerability reporting and secret handling.
+- [Final capstone paper — PDF](docs/paper/ChicagoDoes_Capstone_Paper.pdf)
+- [Editable paper manuscript — DOCX](docs/paper/ChicagoDoes_Capstone_Paper.docx)
+- [Final presentation — PPTX](docs/presentation/ChicagoDoes_Final_Presentation.pptx)
+- [LaTeX source and research figures](docs/paper/)
+- [Presentation builder and visual assets](docs/presentation/)
 
-## Development checks
+## Team and context
 
-```bash
-python -m py_compile backend/main.py backend/data_loader.py backend/recommender.py
-node --check frontend/app.js
-python -m pytest
-```
+This project was completed as a Spring 2026 University of Chicago MS in Applied
+Data Science capstone for Ateema / ChicagoDoes.
 
-Optional evaluation and MLflow tooling is installed separately:
+**Capstone team:** Yiou Wang · RJ Xia · Kennedy Damtse
 
-```bash
-pip install -r requirements-ml.txt
-```
+## Public data and privacy
 
-## Deployment
+The public repository contains no production credentials, GA4 pseudonymous
+identifiers, account IDs, device fingerprints, visitor location histories, raw
+referrers, session histories, or private analytics exports. Production resource
+identifiers in operational code and SQL are replaced with parameters.
 
-The included `Dockerfile`, `Procfile`, and `render.yaml` support common Python
-hosting platforms. Deploy the synthetic public edition first, then connect a
-private data source only in an access-controlled environment.
+The final paper and presentation remain unchanged as the historical academic
+record, including their authorship, reported aggregate results, and technical
+narrative. See [PRIVACY.md](PRIVACY.md) for the exact public-data boundary and
+[SECURITY.md](SECURITY.md) for secret handling and vulnerability reporting.
+
+## Internal handoff access
+
+Authorized project stakeholders who need complete operational handoff
+documentation, original or private data exports, deployment details, private
+environment configuration, or internal repository history can request access
+to the private internal repository by contacting Austin Wang at
+[yiouwang@uchicago.edu](mailto:yiouwang@uchicago.edu). Please do not post
+credentials or visitor-level data in public issues.
 
 ## License
 
