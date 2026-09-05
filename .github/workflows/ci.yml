@@ -20,7 +20,7 @@ jobs:
       - run: pip install -r requirements.txt pytest
       - run: python -m py_compile backend/main.py backend/data_loader.py backend/recommender.py
       - run: python -m pytest
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
       - run: node --check frontend/app.js
