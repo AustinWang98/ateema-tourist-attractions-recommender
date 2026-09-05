@@ -6,7 +6,9 @@ for a more personalized list and itinerary.
 
 This public edition runs entirely from a deterministic synthetic event fixture.
 It contains no production credentials, visitor identifiers, session histories,
-private analytics exports, cloud resource names, or internal operating records.
+private analytics exports, or internal operating records. The final academic
+paper and presentation are published intact, including their historical
+technical narrative, authorship, and reported results.
 
 ## Features
 
@@ -16,7 +18,11 @@ private analytics exports, cloud resource names, or internal operating records.
 - Media-rich recommendation cards and Chicago map coordinates
 - Optional OpenAI-compatible itinerary generation with a deterministic fallback
 - Synthetic demo data that can be regenerated and audited
-- BigQuery support through environment variables for private deployments
+- Six-stage BigQuery transformation pipeline with schemas and public seeds
+- Leakage-safe offline evaluation, weight search, cross-validation, and MLflow
+- Final paper PDF and the team's editable Word manuscript
+- Complete final PowerPoint deck, generation source, and visual assets
+- Reproducible paper source, figures, and algorithm diagrams
 
 ## Repository layout
 
@@ -28,11 +34,35 @@ data/
   location_dim.csv          Public place catalog
   locations_geo.csv         Place coordinates
   location_cards.json       Public card metadata
+  *_results.csv             Complete aggregate evaluation and tuning results
+warehouse/
+  sql/                      Six BigQuery transformation stages
+  schemas/                  Eight table schemas
+  seeds/                    Non-personal dimension seeds
+  run_pipeline.py           Parameterized BigQuery rebuild utility
+docs/
+  paper/                    Final PDF, Word manuscript, LaTeX, and figures
+  presentation/             Final PowerPoint, builder, and assets
 scripts/
   generate_demo_events.py   Rebuilds the synthetic fixture
   build_location_cards.py   Rebuilds card metadata
+  enrich_geocode_firecrawl.py
+  evaluate_engagement_impact.py
 tests/                      Unit and privacy checks
 ```
+
+## Recommendation architecture
+
+The ranker blends TF-IDF content similarity, global popularity and engagement,
+item co-visitation, returning-user neighbors, session co-visitation, transition
+probabilities, and event-time trending. Maximal Marginal Relevance then balances
+relevance against category diversity. Cold-start visitors receive a profile
+constructed from selected interests and optional free text. Recommendation
+traffic is tagged and separately logged so it can be excluded or down-weighted
+during later model refreshes.
+
+The complete implementation remains under `backend/`. The public/private split
+changes data sources and identifiers, not the ranking architecture.
 
 ## Run locally
 
@@ -78,6 +108,41 @@ BQ_TABLE_EVENTS=user_location_category_events
 The browser never queries BigQuery directly. The server reads configured tables
 at startup and builds its in-memory ranking indexes.
 
+The full parameterized warehouse is documented in
+[`warehouse/README.md`](warehouse/README.md). Its SQL retains user/session field
+logic and table relationships, while project and dataset identifiers are generic
+placeholders. No production rows are included.
+
+## Paper and presentation
+
+The complete capstone materials are available directly in the repository:
+
+- [`docs/paper/ChicagoDoes_Capstone_Paper.pdf`](docs/paper/ChicagoDoes_Capstone_Paper.pdf)
+- [`docs/paper/ChicagoDoes_Capstone_Paper.docx`](docs/paper/ChicagoDoes_Capstone_Paper.docx)
+- [`docs/presentation/ChicagoDoes_Final_Presentation.pptx`](docs/presentation/ChicagoDoes_Final_Presentation.pptx)
+
+Their source material is included beside them: the full LaTeX manuscript,
+paper figures and diagram generator, presentation builder, formula images,
+branding assets, and screenshots. These academic deliverables are preserved
+unchanged from the team edition.
+
+## Evaluation tooling
+
+The repository retains the temporal holdout evaluator, randomized weight search,
+five-fold validation, engagement-policy comparison, and optional MLflow tracking.
+The checked-in historical tuning artifacts are aggregate and non-identifying,
+including the complete randomized-search results, cross-validation summary,
+selected weights, and offline evaluation table. Use an approved private export
+under `data/private/` to reproduce the historical measurements, or use the
+synthetic fixture to exercise the pipeline without credentials.
+
+```bash
+python -m backend.evaluation_runner --events data/demo_events.csv
+python -m backend.weight_search --events data/demo_events.csv
+python -m backend.weight_search_cv --events data/demo_events.csv
+python scripts/evaluate_engagement_impact.py
+```
+
 ## API
 
 | Method | Path | Purpose |
@@ -98,7 +163,8 @@ at startup and builds its in-memory ranking indexes.
 The checked-in fixture is synthetic and intentionally omits production visitor
 fields such as GA4 pseudonymous IDs, account IDs, device fingerprints, location
 history, and raw referrers. Private exports belong under `data/private/`, which
-is ignored by Git.
+is ignored by Git. BigQuery schemas may name these fields because the warehouse
+must define them, but the repository contains no production values.
 
 See [PRIVACY.md](PRIVACY.md) for the public-data boundary and
 [SECURITY.md](SECURITY.md) for vulnerability reporting and secret handling.

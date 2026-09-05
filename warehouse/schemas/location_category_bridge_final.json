@@ -1,0 +1,10 @@
+[
+  {
+    "name": "location_id",
+    "type": "STRING"
+  },
+  {
+    "name": "category_id",
+    "type": "STRING"
+  }
+]

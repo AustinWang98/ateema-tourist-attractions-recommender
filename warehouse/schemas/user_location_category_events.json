@@ -1,0 +1,282 @@
+[
+  {
+    "name": "event_date",
+    "type": "STRING"
+  },
+  {
+    "name": "event_timestamp",
+    "type": "INTEGER"
+  },
+  {
+    "name": "event_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "event_name",
+    "type": "STRING"
+  },
+  {
+    "name": "action_id",
+    "type": "STRING"
+  },
+  {
+    "name": "payload",
+    "type": "STRING"
+  },
+  {
+    "name": "interaction_weight",
+    "type": "FLOAT"
+  },
+  {
+    "name": "user_pseudo_id",
+    "type": "STRING"
+  },
+  {
+    "name": "user_id",
+    "type": "STRING"
+  },
+  {
+    "name": "user_key",
+    "type": "STRING"
+  },
+  {
+    "name": "cid",
+    "type": "STRING"
+  },
+  {
+    "name": "account_id",
+    "type": "STRING"
+  },
+  {
+    "name": "story_id",
+    "type": "STRING"
+  },
+  {
+    "name": "user_first_touch_timestamp",
+    "type": "INTEGER"
+  },
+  {
+    "name": "user_first_touch_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "session_key",
+    "type": "STRING"
+  },
+  {
+    "name": "ga_session_id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "ga_session_number",
+    "type": "INTEGER"
+  },
+  {
+    "name": "location_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_name",
+    "type": "STRING"
+  },
+  {
+    "name": "event_category_id",
+    "type": "STRING"
+  },
+  {
+    "name": "event_category_name",
+    "type": "STRING"
+  },
+  {
+    "name": "matched_event_category_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "location_category_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_category_name",
+    "type": "STRING"
+  },
+  {
+    "name": "primary_category",
+    "type": "STRING"
+  },
+  {
+    "name": "num_categories",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_hot_spot_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_favorite_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "search_term",
+    "type": "STRING"
+  },
+  {
+    "name": "previous_location_id",
+    "type": "STRING"
+  },
+  {
+    "name": "page_location",
+    "type": "STRING"
+  },
+  {
+    "name": "page_title",
+    "type": "STRING"
+  },
+  {
+    "name": "page_referrer",
+    "type": "STRING"
+  },
+  {
+    "name": "engagement_time_msec",
+    "type": "INTEGER"
+  },
+  {
+    "name": "engagement_time_msec_capped",
+    "type": "INTEGER"
+  },
+  {
+    "name": "engaged_session_event",
+    "type": "INTEGER"
+  },
+  {
+    "name": "session_engaged",
+    "type": "STRING"
+  },
+  {
+    "name": "percent_scrolled",
+    "type": "INTEGER"
+  },
+  {
+    "name": "device_category",
+    "type": "STRING"
+  },
+  {
+    "name": "mobile_brand",
+    "type": "STRING"
+  },
+  {
+    "name": "mobile_model",
+    "type": "STRING"
+  },
+  {
+    "name": "operating_system",
+    "type": "STRING"
+  },
+  {
+    "name": "operating_system_version",
+    "type": "STRING"
+  },
+  {
+    "name": "device_language",
+    "type": "STRING"
+  },
+  {
+    "name": "browser",
+    "type": "STRING"
+  },
+  {
+    "name": "browser_version",
+    "type": "STRING"
+  },
+  {
+    "name": "hostname",
+    "type": "STRING"
+  },
+  {
+    "name": "city",
+    "type": "STRING"
+  },
+  {
+    "name": "country",
+    "type": "STRING"
+  },
+  {
+    "name": "continent",
+    "type": "STRING"
+  },
+  {
+    "name": "region",
+    "type": "STRING"
+  },
+  {
+    "name": "sub_continent",
+    "type": "STRING"
+  },
+  {
+    "name": "metro",
+    "type": "STRING"
+  },
+  {
+    "name": "analytics_storage",
+    "type": "STRING"
+  },
+  {
+    "name": "ads_storage",
+    "type": "STRING"
+  },
+  {
+    "name": "uses_transient_token",
+    "type": "STRING"
+  },
+  {
+    "name": "traffic_source",
+    "type": "STRING"
+  },
+  {
+    "name": "traffic_medium",
+    "type": "STRING"
+  },
+  {
+    "name": "traffic_campaign",
+    "type": "STRING"
+  },
+  {
+    "name": "collected_manual_source",
+    "type": "STRING"
+  },
+  {
+    "name": "collected_manual_medium",
+    "type": "STRING"
+  },
+  {
+    "name": "collected_manual_campaign",
+    "type": "STRING"
+  },
+  {
+    "name": "stream_id",
+    "type": "STRING"
+  },
+  {
+    "name": "platform",
+    "type": "STRING"
+  },
+  {
+    "name": "is_active_user",
+    "type": "BOOLEAN"
+  },
+  {
+    "name": "batch_event_index",
+    "type": "INTEGER"
+  },
+  {
+    "name": "batch_page_id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "batch_ordering_id",
+    "type": "INTEGER"
+  },
+  {
+    "name": "event_sequence_in_session",
+    "type": "INTEGER"
+  }
+]

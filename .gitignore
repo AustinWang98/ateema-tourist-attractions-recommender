@@ -16,7 +16,6 @@ data/outbound_clicks.jsonl
 data/private/
 data/user_location_features.csv
 data/events.csv
-data/weight_search_results.csv
 warehouse/exports/
 warehouse/private/
 __pycache__/

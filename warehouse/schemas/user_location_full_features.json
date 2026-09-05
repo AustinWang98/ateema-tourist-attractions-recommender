@@ -1,0 +1,342 @@
+[
+  {
+    "name": "user_key",
+    "type": "STRING"
+  },
+  {
+    "name": "user_pseudo_ids",
+    "type": "STRING"
+  },
+  {
+    "name": "representative_user_pseudo_id",
+    "type": "STRING"
+  },
+  {
+    "name": "user_id",
+    "type": "STRING"
+  },
+  {
+    "name": "cid",
+    "type": "STRING"
+  },
+  {
+    "name": "account_id",
+    "type": "STRING"
+  },
+  {
+    "name": "story_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_name",
+    "type": "STRING"
+  },
+  {
+    "name": "location_category_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_category_name",
+    "type": "STRING"
+  },
+  {
+    "name": "primary_category",
+    "type": "STRING"
+  },
+  {
+    "name": "num_categories",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_hot_spot_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_favorite_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_interactions_with_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "marker_click_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "location_thumbnail_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "detail_cta_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "location_page_view_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "scroll_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_interaction_score",
+    "type": "FLOAT"
+  },
+  {
+    "name": "avg_interaction_score",
+    "type": "FLOAT"
+  },
+  {
+    "name": "sessions_with_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "first_interaction_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "last_interaction_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "total_location_engagement_msec",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_location_engagement_msec",
+    "type": "FLOAT"
+  },
+  {
+    "name": "total_location_engagement_msec_capped",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_location_engagement_msec_capped",
+    "type": "FLOAT"
+  },
+  {
+    "name": "max_percent_scrolled",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_user_interactions",
+    "type": "INTEGER"
+  },
+  {
+    "name": "distinct_locations_interacted",
+    "type": "INTEGER"
+  },
+  {
+    "name": "distinct_location_categories_seen",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_sessions",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_user_interaction_score",
+    "type": "FLOAT"
+  },
+  {
+    "name": "avg_user_interaction_score",
+    "type": "FLOAT"
+  },
+  {
+    "name": "total_marker_clicks",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_detail_cta_clicks",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_search_events",
+    "type": "INTEGER"
+  },
+  {
+    "name": "first_seen_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "last_seen_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "total_user_engagement_msec",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_user_engagement_msec",
+    "type": "FLOAT"
+  },
+  {
+    "name": "total_user_engagement_msec_capped",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_user_engagement_msec_capped",
+    "type": "FLOAT"
+  },
+  {
+    "name": "global_location_name",
+    "type": "STRING"
+  },
+  {
+    "name": "total_location_interactions_all_users",
+    "type": "INTEGER"
+  },
+  {
+    "name": "distinct_users_interacted_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "distinct_sessions_interacted_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_location_score_all_users",
+    "type": "FLOAT"
+  },
+  {
+    "name": "avg_location_score_all_users",
+    "type": "FLOAT"
+  },
+  {
+    "name": "total_marker_clicks_all_users",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_detail_cta_all_users",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_location_engagement_all_users_msec",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_location_engagement_all_users_msec",
+    "type": "FLOAT"
+  },
+  {
+    "name": "total_location_engagement_all_users_msec_capped",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_location_engagement_all_users_msec_capped",
+    "type": "FLOAT"
+  },
+  {
+    "name": "device_category",
+    "type": "STRING"
+  },
+  {
+    "name": "mobile_brand",
+    "type": "STRING"
+  },
+  {
+    "name": "mobile_model",
+    "type": "STRING"
+  },
+  {
+    "name": "operating_system",
+    "type": "STRING"
+  },
+  {
+    "name": "operating_system_version",
+    "type": "STRING"
+  },
+  {
+    "name": "device_language",
+    "type": "STRING"
+  },
+  {
+    "name": "browser",
+    "type": "STRING"
+  },
+  {
+    "name": "browser_version",
+    "type": "STRING"
+  },
+  {
+    "name": "hostname",
+    "type": "STRING"
+  },
+  {
+    "name": "city",
+    "type": "STRING"
+  },
+  {
+    "name": "country",
+    "type": "STRING"
+  },
+  {
+    "name": "continent",
+    "type": "STRING"
+  },
+  {
+    "name": "region",
+    "type": "STRING"
+  },
+  {
+    "name": "sub_continent",
+    "type": "STRING"
+  },
+  {
+    "name": "metro",
+    "type": "STRING"
+  },
+  {
+    "name": "analytics_storage",
+    "type": "STRING"
+  },
+  {
+    "name": "ads_storage",
+    "type": "STRING"
+  },
+  {
+    "name": "uses_transient_token",
+    "type": "STRING"
+  },
+  {
+    "name": "traffic_source",
+    "type": "STRING"
+  },
+  {
+    "name": "traffic_medium",
+    "type": "STRING"
+  },
+  {
+    "name": "traffic_campaign",
+    "type": "STRING"
+  },
+  {
+    "name": "collected_manual_source",
+    "type": "STRING"
+  },
+  {
+    "name": "collected_manual_medium",
+    "type": "STRING"
+  },
+  {
+    "name": "collected_manual_campaign",
+    "type": "STRING"
+  },
+  {
+    "name": "user_first_touch_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "platform",
+    "type": "STRING"
+  },
+  {
+    "name": "stream_id",
+    "type": "STRING"
+  }
+]

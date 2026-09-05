@@ -1,0 +1,17 @@
+[
+  {
+    "name": "category_id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "category",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "section_count",
+    "type": "INTEGER",
+    "mode": "NULLABLE"
+  }
+]

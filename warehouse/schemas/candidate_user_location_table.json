@@ -1,0 +1,102 @@
+[
+  {
+    "name": "user_key",
+    "type": "STRING"
+  },
+  {
+    "name": "location_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_name",
+    "type": "STRING"
+  },
+  {
+    "name": "location_category_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_category_name",
+    "type": "STRING"
+  },
+  {
+    "name": "num_categories",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_hot_spot_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_favorite_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "interacted_label",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_interactions_with_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "marker_click_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "location_thumbnail_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "detail_cta_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "location_page_view_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "scroll_count",
+    "type": "INTEGER"
+  },
+  {
+    "name": "total_interaction_score",
+    "type": "FLOAT"
+  },
+  {
+    "name": "avg_interaction_score",
+    "type": "FLOAT"
+  },
+  {
+    "name": "sessions_with_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "first_interaction_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "last_interaction_time",
+    "type": "TIMESTAMP"
+  },
+  {
+    "name": "total_location_engagement_msec",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_location_engagement_msec",
+    "type": "FLOAT"
+  },
+  {
+    "name": "total_location_engagement_msec_capped",
+    "type": "INTEGER"
+  },
+  {
+    "name": "avg_location_engagement_msec_capped",
+    "type": "FLOAT"
+  },
+  {
+    "name": "max_percent_scrolled",
+    "type": "INTEGER"
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "name": "location_id",
+    "type": "STRING"
+  },
+  {
+    "name": "master_location_name",
+    "type": "STRING"
+  },
+  {
+    "name": "location_category_id",
+    "type": "STRING"
+  },
+  {
+    "name": "location_category_name",
+    "type": "STRING"
+  },
+  {
+    "name": "primary_category",
+    "type": "STRING"
+  },
+  {
+    "name": "num_categories",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_hot_spot_location",
+    "type": "INTEGER"
+  },
+  {
+    "name": "is_favorite_location",
+    "type": "INTEGER"
+  }
+]

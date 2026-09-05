@@ -1,0 +1,25 @@
+{
+  "best_weights_returning": {
+    "sim": 0.406,
+    "popularity": 0.409,
+    "item_collab": 0.101,
+    "user_collab": 0.063,
+    "trending": 0.02,
+    "session": 0.001
+  },
+  "ndcg@10": 0.2559300799293328,
+  "ndcg@10_current": 0.20079468238332876,
+  "full_metrics": {
+    "P@10": 0.04333333333333333,
+    "R@10": 0.43333333333333335,
+    "HR@10": 0.43333333333333335,
+    "NDCG@10": 0.2559300799293328
+  },
+  "mmr_verdict": {
+    "ndcg_no_mmr": 0.2559300799293328,
+    "ndcg_with_mmr": 0.2402204165455853,
+    "diversity_no_mmr": 0.27692820678600893,
+    "diversity_with_mmr": 0.6038171623328644
+  },
+  "n_users": 120
+}

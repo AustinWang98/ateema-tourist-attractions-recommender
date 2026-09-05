@@ -1,0 +1,22 @@
+[
+  {
+    "name": "location_id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "location_name",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "category_id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  },
+  {
+    "name": "category_name",
+    "type": "STRING",
+    "mode": "NULLABLE"
+  }
+]
