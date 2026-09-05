@@ -10,6 +10,16 @@ private analytics exports, or internal operating records. The final academic
 paper and presentation are published intact, including their historical
 technical narrative, authorship, and reported results.
 
+## Internal handoff access
+
+This repository is the public technical and academic edition. Authorized
+project stakeholders who need the complete operational handoff documentation,
+original or private data exports, deployment details, private environment
+configuration, or internal repository history should contact Austin Wang at
+[yiouwang@uchicago.edu](mailto:yiouwang@uchicago.edu) to request access to the
+private internal repository. Do not post credentials or visitor-level data in
+public issues.
+
 ## Features
 
 - Hybrid ranking with content similarity, popularity, collaborative signals,
