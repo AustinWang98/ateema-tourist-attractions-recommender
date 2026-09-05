@@ -1,0 +1,44 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Caches
+.firecrawl/
+data/llm_cache.sqlite
+data/enrich_cache.sqlite
+data/firecrawl_cache/
+data/location_images/
+data/location_videos/
+data/missing_media_backfill.log
+data/outbound_clicks.jsonl
+# Private BigQuery exports and handoff scratch data
+data/private/
+data/user_location_features.csv
+data/events.csv
+data/weight_search_results.csv
+warehouse/exports/
+warehouse/private/
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# OS junk
+.DS_Store
+
+# Office lockfiles
+~$*
+
+# Documentation build intermediates
+docs/**/*.aux
+docs/**/*.fdb_latexmk
+docs/**/*.fls
+docs/**/*.lof
+docs/**/*.log
+docs/**/*.lot
+docs/**/*.out
+docs/**/*.toc
+docs/**/*.synctex.gz
+mlruns/
+mlflow.db
