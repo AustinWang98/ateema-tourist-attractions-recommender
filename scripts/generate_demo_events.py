@@ -12,47 +12,41 @@ from __future__ import annotations
 import argparse
 import csv
 import random
+from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CATALOG = PROJECT_ROOT / "data" / "location_dim.csv"
+DEFAULT_CATEGORY_MAPPING = PROJECT_ROOT / "warehouse" / "seeds" / "category_mapping.csv"
+DEFAULT_CATEGORY_BRIDGE = PROJECT_ROOT / "warehouse" / "seeds" / "location_category_bridge.csv"
 DEFAULT_OUTPUT = PROJECT_ROOT / "data" / "demo_events.csv"
 SEED = 20260813
 
-CATEGORIES = (
-    "Arts & Culture",
-    "Attractions",
-    "Food & Drink",
-    "Hotels",
-    "Nightlife",
-    "Outdoors",
-    "Shopping",
-    "Sports & Recreation",
-)
+META_CATEGORIES = {"HOT SPOTS", "Favorites"}
 
 KEYWORDS = {
-    "Arts & Culture": (
-        "art", "cultural", "gallery", "museum", "music", "opera",
-        "symphony", "theater", "theatre",
+    "Museums": ("gallery", "museum"),
+    "Theaters and Music Venues": (
+        "music", "opera", "symphony", "theater", "theatre",
     ),
-    "Food & Drink": (
+    "Restaurants": (
         "bakery", "bbq", "cafe", "coffee", "diner", "food", "grill",
         "kitchen", "pizza", "restaurant", "steak", "sushi", "taco",
     ),
     "Hotels": ("hostel", "hotel", "inn", "resort"),
-    "Nightlife": (
+    "Bars": (
         "bar", "brewery", "club", "lounge", "pub", "tavern",
     ),
-    "Outdoors": (
+    "Parks": (
         "beach", "conservatory", "garden", "harbor", "lake", "park",
         "pier", "riverwalk", "trail", "zoo",
     ),
-    "Shopping": (
+    "Shops": (
         "boutique", "mall", "market", "outlet", "shop", "store",
     ),
-    "Sports & Recreation": (
+    "Sports Venues": (
         "arena", "bike", "bowling", "field", "fitness", "golf", "stadium",
     ),
 }
@@ -89,31 +83,66 @@ def infer_category(name: str) -> str:
     return "Attractions"
 
 
-def load_catalog(path: Path) -> list[dict[str, str]]:
+def load_taxonomy(mapping_path: Path, bridge_path: Path) -> dict[str, list[str]]:
+    """Load the public place-to-category mapping without visitor data."""
+    with mapping_path.open(newline="", encoding="utf-8") as handle:
+        category_names = {
+            row["category_id"].strip(): row["category"].strip()
+            for row in csv.DictReader(handle)
+        }
+
+    categories_by_location: defaultdict[str, list[str]] = defaultdict(list)
+    with bridge_path.open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            location_id = row["location_id"].strip()
+            category = category_names.get(row["category_id"].strip())
+            if category and category not in categories_by_location[location_id]:
+                categories_by_location[location_id].append(category)
+    return dict(categories_by_location)
+
+
+def load_catalog(
+    path: Path,
+    mapping_path: Path = DEFAULT_CATEGORY_MAPPING,
+    bridge_path: Path = DEFAULT_CATEGORY_BRIDGE,
+) -> list[dict[str, object]]:
     with path.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     if not rows or not {"location_id", "location_name"}.issubset(rows[0]):
         raise ValueError(f"Catalog must contain location_id and location_name: {path}")
+
+    taxonomy = load_taxonomy(mapping_path, bridge_path)
     for row in rows:
-        row["primary_category"] = infer_category(row["location_name"])
+        categories = taxonomy.get(row["location_id"], [])
+        if not categories:
+            categories = [infer_category(row["location_name"])]
+        primary = next(
+            (category for category in categories if category not in META_CATEGORIES),
+            "Attractions",
+        )
+        row["categories"] = categories
+        row["primary_category"] = primary
+        row["is_hot_spot_location"] = int("HOT SPOTS" in categories)
+        row["is_favorite_location"] = int("Favorites" in categories)
     return rows
 
 
-def build_events(catalog: list[dict[str, str]]) -> list[dict[str, object]]:
+def build_events(catalog: list[dict[str, object]]) -> list[dict[str, object]]:
     """Create stable multi-stop demo sessions across broad preferences."""
     rng = random.Random(SEED)
+    preference_categories = sorted({str(row["primary_category"]) for row in catalog})
     by_category = {
         category: [row for row in catalog if row["primary_category"] == category]
-        for category in CATEGORIES
+        for category in preference_categories
     }
-    popular = catalog[: min(120, len(catalog))]
+    broad_pool = catalog[: min(120, len(catalog))]
     start = datetime(2026, 7, 1, 14, 0, tzinfo=timezone.utc)
     events: list[dict[str, object]] = []
 
     for user_number in range(1, 81):
         user_key = f"synthetic-user-{user_number:03d}"
-        preference = CATEGORIES[(user_number - 1) % len(CATEGORIES)]
-        preferred = by_category.get(preference) or popular
+        preference = preference_categories[(user_number - 1) % len(preference_categories)]
+        preferred = by_category.get(preference) or broad_pool
 
         for session_number in range(1, 4):
             session_key = f"{user_key}-session-{session_number:02d}"
@@ -121,9 +150,9 @@ def build_events(catalog: list[dict[str, str]]) -> list[dict[str, object]]:
                 days=(user_number * 3 + session_number * 7) % 31,
                 minutes=user_number * 11 + session_number * 37,
             )
-            choices: list[dict[str, str]] = []
+            choices: list[dict[str, object]] = []
             while len(choices) < 4:
-                pool = preferred if rng.random() < 0.65 else popular
+                pool = preferred if rng.random() < 0.65 else broad_pool
                 candidate = rng.choice(pool)
                 if candidate not in choices:
                     choices.append(candidate)
@@ -131,17 +160,18 @@ def build_events(catalog: list[dict[str, str]]) -> list[dict[str, object]]:
             previous_id = ""
             for stop_number, location in enumerate(choices):
                 base_time = session_start + timedelta(minutes=stop_number * 18)
-                category = location["primary_category"]
+                category = str(location["primary_category"])
+                categories = [str(value) for value in location["categories"]]
                 common = {
                     "user_key": user_key,
                     "session_key": session_key,
                     "location_id": location["location_id"],
                     "location_name": location["location_name"],
-                    "location_category_name": category,
+                    "location_category_name": "; ".join(categories),
                     "primary_category": category,
-                    "num_categories": 1,
-                    "is_hot_spot_location": 0,
-                    "is_favorite_location": int((user_number + stop_number) % 11 == 0),
+                    "num_categories": len(categories),
+                    "is_hot_spot_location": location["is_hot_spot_location"],
+                    "is_favorite_location": location["is_favorite_location"],
                     "previous_location_id": previous_id,
                     "page_location": f"https://demo.invalid/places/{location['location_id']}",
                 }
@@ -170,10 +200,12 @@ def build_events(catalog: list[dict[str, str]]) -> list[dict[str, object]]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate synthetic ChicagoDoes demo events")
     parser.add_argument("--catalog", type=Path, default=DEFAULT_CATALOG)
+    parser.add_argument("--category-mapping", type=Path, default=DEFAULT_CATEGORY_MAPPING)
+    parser.add_argument("--category-bridge", type=Path, default=DEFAULT_CATEGORY_BRIDGE)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
-    catalog = load_catalog(args.catalog)
+    catalog = load_catalog(args.catalog, args.category_mapping, args.category_bridge)
     events = build_events(catalog)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="", encoding="utf-8") as handle:

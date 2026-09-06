@@ -38,6 +38,21 @@ def test_private_data_is_not_in_public_tree() -> None:
     assert all(not path.exists() for path in forbidden)
 
 
+def test_build_contexts_exclude_private_data() -> None:
+    required_patterns = {
+        "data/private",
+        "data/events.csv",
+        "data/user_location_features.csv",
+    }
+    for name in (".dockerignore", ".gcloudignore"):
+        patterns = {
+            line.strip().rstrip("/")
+            for line in (ROOT / name).read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.startswith("#")
+        }
+        assert required_patterns.issubset(patterns)
+
+
 def test_complete_academic_deliverables_are_public() -> None:
     required = [
         ROOT / "docs" / "paper" / "ChicagoDoes_Capstone_Paper.docx",

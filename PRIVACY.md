@@ -10,6 +10,7 @@ This repository is the public demo edition of the recommender.
 - Synthetic user and session labels used only for local demonstrations
 - BigQuery SQL, field schemas, and non-personal dimension seeds
 - Complete aggregate model-evaluation and tuning results
+- Historical aggregate warehouse-size information, without row-level records
 - The unchanged final paper, Word manuscript, PowerPoint deck, and their source
 - Generic deployment examples with placeholder resource identifiers
 
@@ -19,8 +20,9 @@ This repository is the public demo edition of the recommender.
 - Real or pseudonymous visitor identifiers
 - Account, client, advertising, and session identifiers
 - Device fingerprints, precise visitor histories, and referrers
-- Exact cloud project names, job identifiers, resource inventories, and
-  deployment records outside the unchanged academic paper and presentation
+- Exact live cloud project/dataset/service names, job identifiers, account and
+  billing details, service identities, and deployment revision history outside
+  the unchanged academic paper and presentation
 - Credentials, service-account files, API keys, and local caches
 
 Do not open a pull request containing production data. Store authorized local

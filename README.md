@@ -84,7 +84,8 @@ The checked-in fixture contains **1,920 events across 80 synthetic users** and
 uses the same 350-place catalog. It demonstrates the workflow, not the original
 visitor distribution or capstone performance.
 See the [technical guide](docs/TECHNICAL_GUIDE.md) for configuration, tests,
-evaluation, and private warehouse setup.
+evaluation, and private warehouse setup, or read the
+[synthetic-data contract](data/README.md).
 
 ## Design choices that matter
 

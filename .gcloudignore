@@ -14,6 +14,13 @@ data/firecrawl_cache/
 data/llm_cache.sqlite
 data/missing_media_backfill.log
 data/outbound_clicks.jsonl
+data/private/
+data/events.csv
+data/user_location_features.csv
+data/location_images/
+data/location_videos/
+warehouse/exports/
+warehouse/private/
 frontend/.DS_Store
 backend/__pycache__/
 backend/sources/__pycache__/

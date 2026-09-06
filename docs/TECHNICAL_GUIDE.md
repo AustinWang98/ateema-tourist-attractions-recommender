@@ -69,6 +69,78 @@ original visitor records.
 | Weight experiments | [Randomized search](../backend/weight_search.py) · [Cross-validation](../backend/weight_search_cv.py) |
 | Warehouse implementation | [SQL stages](../warehouse/sql/) · [Schemas](../warehouse/schemas/) · [Runner](../warehouse/run_pipeline.py) |
 
+## Public/internal implementation parity
+
+The public edition keeps the complete product and modeling implementation.
+The changes from the private team edition are deliberately narrow:
+
+| Area | Public behavior | What remains private |
+| --- | --- | --- |
+| Event input | Deterministic synthetic events with the public catalog and category taxonomy | Original visitor-level event export |
+| Application startup | Defaults to `data/demo_events.csv`; BigQuery and restricted local-cache modes remain implemented | Credentials and deployed environment values |
+| Evaluation tools | Same temporal holdout, baselines, search, cross-validation, and MLflow integration | Reproducing historical metrics requires the authorized original input |
+| Warehouse | Same six SQL stages and eight schemas, with project and dataset placeholders | Exact cloud resource identifiers and row-level tables |
+| Product and research | Same backend, frontend, paper, slides, and editable sources | Original heavy media files and operational handoff records |
+
+The code-level edits mostly change default paths, public attribution labels,
+and hard-coded infrastructure names. They do not replace the ranking algorithm
+with a simplified public model.
+
+### Ranking behavior
+
+- All 350 official catalog places enter the candidate universe. Places without
+  observed clicks receive neutral behavioral defaults and can still score on
+  content; request filters and previously visited places can narrow a result.
+- The score blend combines content similarity, popularity, item co-visitation,
+  user neighbors, recent trends, and session/transition behavior before MMR
+  re-ranking. Canonical-name suppression prevents duplicate place cards.
+- **Show top places now** does not invent interests from a traveler type or
+  vibe. Content personalization begins only when the visitor supplies interests
+  or free text.
+- The returning-user path and user-neighbor model are implemented and can be
+  exercised through the API. The browser currently sends `user_key: null`, so
+  live browser sessions use the new-user path until an approved persistent
+  identity design is added.
+- A configurable placement boost can be applied to the public catalog's
+  `HOT SPOTS` flag:
+
+  ```text
+  final_score = hybrid_relevance_score + HOT_SPOT_BOOST × is_hot_spot
+  ```
+
+  Its default is `0.12`. Treat this as an explicit product-policy parameter,
+  not as an offline-accuracy claim.
+
+### Feedback, media, and itinerary behavior
+
+Recommender-origin outbound clicks are separated from ordinary engagement in
+three places: the browser adds attribution parameters, `/api/outbound/click`
+writes a separate local log, and a configurable runtime guard can penalize
+recent recommender-origin activity. This reduces the chance that the system's
+own recommendations inflate later popularity signals. Production refreshes
+should also exclude or down-weight attributed recommender traffic.
+
+Catalog cards use the checked-in metadata store and prefer official or
+ChicagoDoes media when locally available. Heavy original media is excluded
+from GitHub, so a clone may show metadata/fallback presentation instead.
+Deterministic ranking supplies the core itinerary pool. Optional AI can assemble
+the schedule and add clearly labeled supplementary stops; without an API key,
+the deterministic scheduler remains available.
+
+### Optional experiment tracking
+
+Install `requirements-ml.txt`, run the evaluation/search commands in a
+disposable clone, then record the saved artifacts with:
+
+```bash
+python -m backend.mlflow_track --events data/demo_events.csv
+mlflow ui --backend-store-uri "file:$(pwd)/mlruns"
+```
+
+The public MLflow wrapper records the robust summary, weight-search table,
+cross-validation output, baseline table, parameters, metrics, and environment
+metadata when those files are present.
+
 ## Run the evaluation workflow
 
 **Use a separate disposable clone for experiments.** The current scripts write

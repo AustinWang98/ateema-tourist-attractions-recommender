@@ -194,7 +194,7 @@ def main():
     }
     common_tags = {"data_window": window, "split": f"leave-last-{args.n_holdout}"}
     artifacts = [str(robust_path)]
-    for extra in ("data/best_weights.json",
+    for extra in ("data/best_weights.json", "data/weight_search_results.csv",
                   "data/weight_cv_results.csv", "data/offline_eval_results.csv"):
         if Path(extra).exists():
             artifacts.append(extra)
